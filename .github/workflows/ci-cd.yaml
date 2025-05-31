@@ -34,12 +34,12 @@ jobs:
 
       - name: Build and Push Backend Image
         run: |
-          docker build -t ${{ secrets.ECR_BACKEND_REPO }} ../backend 
+          docker build -t ${{ secrets.ECR_BACKEND_REPO }} ./backend 
           docker push ${{ secrets.ECR_BACKEND_REPO }}
 
       - name: Build and Push Frontend Image
         run: |
-          docker build -t ${{ secrets.ECR_FRONTEND_REPO }} ../frontend
+          docker build -t ${{ secrets.ECR_FRONTEND_REPO }} ./frontend
           docker push ${{ secrets.ECR_FRONTEND_REPO }}
 
   deploy:
