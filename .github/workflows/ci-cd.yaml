@@ -23,6 +23,9 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Log in to Docker Hub
+        run: docker login --username AWS --password-stdin ${{ secrets.ECR_BACKEND_REPO }}
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -30,12 +33,12 @@ jobs:
 
       - name: Build and Push Backend Image
         run: |
-          docker build -t ${{ secrets.ECR_BACKEND_REPO }} ./backend
+          docker build -t ${{ secrets.ECR_BACKEND_REPO }} ../../backend 
           docker push ${{ secrets.ECR_BACKEND_REPO }}
 
       - name: Build and Push Frontend Image
         run: |
-          docker build -t ${{ secrets.ECR_FRONTEND_REPO }} ./frontend
+          docker build -t ${{ secrets.ECR_FRONTEND_REPO }} ../../frontend
           docker push ${{ secrets.ECR_FRONTEND_REPO }}
 
   deploy:
