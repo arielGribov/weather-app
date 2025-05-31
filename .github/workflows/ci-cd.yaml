@@ -7,6 +7,8 @@ on:
 
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
+  CLUSTER_NAME: $(aws eks list-clusters --region $AWS_REGION --query "clusters[0]" --output text)
+
 
 jobs:
   build-and-push:
@@ -55,7 +57,10 @@ jobs:
         run: |
           echo "${{ secrets.KUBECONFIG_CONTENT }}" | base64 -d > kubeconfig
           export KUBECONFIG=$(pwd)/kubeconfig
-
+   
+      - name: Configure kubectl to connect to EKS
+        run: aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.CLUSTER_NAME }}
+      
       - name: Deploy to Kubernetes
         run: |
           kubectl apply -f ./terraform/kubernetes/backend.yaml
