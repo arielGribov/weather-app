@@ -4,7 +4,7 @@ export CLUSTER_NAME=$(aws eks list-clusters --region $AWS_REGION --query "cluste
 export ECR_REGISTRY_BACKEND=$(aws ecr-public describe-repositories --region $AWS_REGION --query "repositories[0].repositoryUri" --output text)
 export ECR_REGISTRY_FRONTEND=$(aws ecr-public describe-repositories --region $AWS_REGION --query "repositories[1].repositoryUri" --output text)
 
-aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY_BACKEND
 aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
 
 
@@ -27,3 +27,4 @@ kubectl delete -f kubernetes/backend.yaml
 kubectl delete -f kubernetes/frontend.yaml
 
 
+docker history weather-repository/backend:latest
