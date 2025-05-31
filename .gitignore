@@ -42,3 +42,4 @@ terraform.rc
 
 commands.sh
 .github/*
+.gitignore
