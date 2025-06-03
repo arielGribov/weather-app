@@ -40,7 +40,7 @@ jobs:
       - name: Build and Push Frontend Image
         working-directory: ./frontend
         run: |
-          docker build -t ${{ secrets.ECR_FRONTEND_REPO }} ./frontend
+          docker build -t ${{ secrets.ECR_FRONTEND_REPO }} .
           docker push ${{ secrets.ECR_FRONTEND_REPO }}
 
   deploy:
