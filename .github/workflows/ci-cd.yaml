@@ -1,6 +1,6 @@
 name: CI/CD Pipeline
 
-on:
+'on':
   push:
     branches:
       - main
@@ -23,7 +23,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-      
+
       - name: Log in to Docker Hub
         run: |
           aws ecr-public get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_BACKEND_REPO }}
@@ -34,10 +34,11 @@ jobs:
 
       - name: Build and Push Backend Image
         run: |
-          docker build -t ${{ secrets.ECR_BACKEND_REPO }} ./backend 
+          docker build -t ${{ secrets.ECR_BACKEND_REPO }} ./backend
           docker push ${{ secrets.ECR_BACKEND_REPO }}
 
       - name: Build and Push Frontend Image
+        working-directory: ./frontend
         run: |
           docker build -t ${{ secrets.ECR_FRONTEND_REPO }} ./frontend
           docker push ${{ secrets.ECR_FRONTEND_REPO }}
@@ -50,7 +51,7 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-  
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -62,7 +63,7 @@ jobs:
         run: |
           echo "${{ secrets.KUBECONFIG_CONTENT }}" | base64 -d > kubeconfig
           export KUBECONFIG=$(pwd)/kubeconfig
-   
+
       - name: Get EKS Cluster Name and Setup Kubeconfig
         run: |
           CLUSTER_NAME=$(aws eks list-clusters --region $AWS_REGION --query "clusters[0]" --output text)
@@ -70,9 +71,8 @@ jobs:
           aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
         env:
           AWS_REGION: ${{ secrets.AWS_REGION }}
-      
+
       - name: Deploy to Kubernetes
         run: |
           kubectl apply -f ./terraform/kubernetes/backend.yaml
           kubectl apply -f ./terraform/kubernetes/frontend.yaml
-
