@@ -71,7 +71,9 @@
             const weatherInfoDiv = document.getElementById('weather-info');
 
             try {
-                const response = await fetch(`http://127.0.0.1:8000?city=${city}`);
+                // const response = await fetch(`http://127.0.0.1:8000?city=${city}`);
+                const response = await fetch(`/api/?city=${city}`);
+
                 const data = await response.json();
 
                 weatherInfoDiv.innerHTML = `
