@@ -28,6 +28,10 @@ jobs:
         run: |
           aws ecr-public get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_BACKEND_REPO }}
 
+# lets use this insted -
+# - name: Login to Amazon ECR
+#   uses: aws-actions/amazon-ecr-login@v1
+
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
@@ -36,6 +40,8 @@ jobs:
         run: |
           docker build -t ${{ secrets.ECR_BACKEND_REPO }} ./backend
           docker push ${{ secrets.ECR_BACKEND_REPO }}
+# No Versioning or Tagging of Docker Images
+
 
       - name: Build and Push Frontend Image
         run: |
@@ -70,8 +76,25 @@ jobs:
           aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
         env:
           AWS_REGION: ${{ secrets.AWS_REGION }}
+#Unsafe Kubeconfig via Secre
 
       - name: Deploy to Kubernetes
         run: |
           kubectl apply -f ./terraform/kubernetes/backend.yaml
           kubectl apply -f ./terraform/kubernetes/frontend.yaml
+
+
+
+
+# Tag Your Docker Images with Commit Hashes
+# Parallelize Build Jobs
+# Use aws eks update-kubeconfig Instead of Manual Kubeconfig -  Safer and more maintainable with IAM
+# Use GitHub OIDC if Possible - Avoid long-lived AWS credentials.
+# Add Validation in Pre-deploy -
+# - name: Validate Kubernetes YAMLs
+#   run: |
+#     kubectl apply --dry-run=client -f ./terraform/kubernetes/
+
+
+# Artifact Promotion Strategy
+# For production pipelines, you should separate build and deploy pipelines with proper artifact passing.
