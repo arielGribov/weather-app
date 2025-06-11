@@ -78,3 +78,7 @@ module "eks" {
     Name = "Weathers_project"
   }
 }
+
+
+# Define specific ports (e.g., 443, 80, 10250) instead of 0-0 -1
+# lets add logs to the cluster with cluster_enabled_log_types

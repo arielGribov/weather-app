@@ -19,3 +19,6 @@ locals {
     "weather-repo-frontend-app",
   ]
 }
+
+# You're using aws_ecrpublic_repository, which is for public repositories only, but there's no indication public access is needed.
+# lets change this to private repo

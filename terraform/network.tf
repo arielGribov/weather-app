@@ -30,3 +30,8 @@ module "vpc" {
     Name = "Weathers_project"
   }
 }
+
+
+# Your subnet tagging is good, but map_public_ip_on_launch = true globally enables public IPs for all public subnet EC2s,
+# which can lead to exposed workloads.
+# lets do something like this - map_public_ip_on_launch = var.map_public_ip_on_launch

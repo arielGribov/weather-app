@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 
+
+// You're appending new weather results without clearing old ones. On multiple submissions, users see mixed/duplicated content.
+// weatherInfoDiv.innerHTML = "";
+
+
+
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -72,6 +79,8 @@
 
             try {
                 const response = await fetch(`/api/?city=${city}`);
+// If the API returns a 500 error or malformed data, .json() will throw. You don’t catch that, leading to JavaScript errors and broken UI.
+// if (!response.ok) throw new Error(`API Error: ${response.status}`);
 
                 const data = await response.json();
 
@@ -84,6 +93,8 @@
             `;
             }
             catch (error) {
+                // Improve error handling and observability
+                // weatherInfoDiv.innerHTML = `<p class='error'>Error: ${error.message}</p>`;
                 weatherInfoDiv.innerHTML = "<p class='error'>Error: Could not fetch data. Please try again later.</p>";
             }
         }
