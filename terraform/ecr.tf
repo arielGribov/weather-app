@@ -3,7 +3,6 @@ resource "aws_ecrpublic_repository" "weather_repo" {
 
   for_each        = toset(local.ecr_repositories)
   repository_name = each.key
-  # repository_name = "weather-repository"
 
   catalog_data {
     architectures     = ["x86"]
