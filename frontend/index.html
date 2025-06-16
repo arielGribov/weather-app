@@ -2,8 +2,8 @@
 <html lang="en">
 
 
-// You're appending new weather results without clearing old ones. On multiple submissions, users see mixed/duplicated content.
-// weatherInfoDiv.innerHTML = "";
+<!-- // You're appending new weather results without clearing old ones. On multiple submissions, users see mixed/duplicated content. -->
+<!-- // weatherInfoDiv.innerHTML = ""; -->
 
 
 
@@ -78,7 +78,10 @@
             const weatherInfoDiv = document.getElementById('weather-info');
 
             try {
-                const response = await fetch(`/api/?city=${city}`);
+                // const response = await fetch(`/api/?city=${city}`);
+                const response = await fetch(`http://127.0.0.1:8000/?city=${city}`);
+
+
 // If the API returns a 500 error or malformed data, .json() will throw. You don’t catch that, leading to JavaScript errors and broken UI.
 // if (!response.ok) throw new Error(`API Error: ${response.status}`);
 
@@ -104,6 +107,7 @@
                 getWeather();
             }
         });
+        weatherInfoDiv.innerHTML = "";
     </script>
 </body>
 
