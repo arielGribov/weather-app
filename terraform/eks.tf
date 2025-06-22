@@ -65,14 +65,6 @@ module "eks" {
       source_security_group_id = aws_security_group.alb_sg_cluster.id
       description              = "allow inbound networking from ALB"
     }
-    # allow_outbound_networking_to_the_internet = {
-    #   type        = "egress"
-    #   to_port     = 0
-    #   from_port   = 0
-    #   protocol    = "-1"
-    #   cidr_blocks = ["0.0.0.0/0"]
-    #   description = "allow outbound networking to the internet"
-    # }
   }
   tags = {
     Name = "Weathers_project"

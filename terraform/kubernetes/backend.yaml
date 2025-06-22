@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: public.ecr.aws/w8k4j5g8/weather-repo-backend-api
+          image: 205930636266.dkr.ecr.us-east-1.amazonaws.com/weather-repo-backend-api
           ports:
             - containerPort: 8000
 ---
