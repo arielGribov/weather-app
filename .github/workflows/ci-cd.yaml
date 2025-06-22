@@ -30,6 +30,7 @@ jobs:
 # lets use this insted -
 # - name: Login to Amazon ECR
 #   uses: aws-actions/amazon-ecr-login@v1
+# please explain
 
       - name: Login to Amazon ECR
         id: login-ecr
