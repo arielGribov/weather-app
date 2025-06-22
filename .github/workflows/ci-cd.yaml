@@ -25,7 +25,7 @@ jobs:
 
       - name: Log in to Docker Hub
         run: |
-          aws ecr-public get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_BACKEND_REPO }}
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_BACKEND_REPO }}
 
 # lets use this insted -
 # - name: Login to Amazon ECR
