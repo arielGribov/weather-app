@@ -75,8 +75,8 @@ done
             weatherInfoDiv.innerHTML = "";
             
             try {
-                // const response = await fetch(`/api/?city=${city}`);
-                const response = await fetch(`http://127.0.0.1:8000/?city=${city}`);
+                const response = await fetch(`/api/?city=${city}`);
+                // const response = await fetch(`http://127.0.0.1:8000/?city=${city}`);
 // If the API returns a 500 error or malformed data, .json() will throw. You don’t catch that, leading to JavaScript errors and broken UI.
 // if (!response.ok) throw new Error(`API Error: ${response.status}`);
                  if (!response.ok) 
