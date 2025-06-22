@@ -1,13 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-
-
 <!-- // You're appending new weather results without clearing old ones. On multiple submissions, users see mixed/duplicated content. -->
-<!-- // weatherInfoDiv.innerHTML = ""; -->
-
-
-
-
+<!-- // weatherInfoDiv.innerHTML = "";
+done 
+-->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -76,14 +72,15 @@
         async function getWeather() {
             const city = document.getElementById('city').value.trim();
             const weatherInfoDiv = document.getElementById('weather-info');
-
+            weatherInfoDiv.innerHTML = "";
+            
             try {
                 // const response = await fetch(`/api/?city=${city}`);
                 const response = await fetch(`http://127.0.0.1:8000/?city=${city}`);
-
-
 // If the API returns a 500 error or malformed data, .json() will throw. You don’t catch that, leading to JavaScript errors and broken UI.
 // if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                 if (!response.ok) 
+                    throw new Error(`API Error: ${response.status}`);
 
                 const data = await response.json();
 
@@ -97,17 +94,16 @@
             }
             catch (error) {
                 // Improve error handling and observability
-                // weatherInfoDiv.innerHTML = `<p class='error'>Error: ${error.message}</p>`;
-                weatherInfoDiv.innerHTML = "<p class='error'>Error: Could not fetch data. Please try again later.</p>";
+                weatherInfoDiv.innerHTML = `<p class='error'>Error: ${error.message}</p>`;
+                // weatherInfoDiv.innerHTML = "<p class='error'>Error: Could not fetch data. Please try again later.</p>";
             }
         }
         document.getElementById('city').addEventListener('keydown', function (event) {
             if (event.key === 'Enter') {
                 event.preventDefault();
                 getWeather();
-            }
+            }   
         });
-        weatherInfoDiv.innerHTML = "";
     </script>
 </body>
 
