@@ -1,6 +1,6 @@
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "20.36.0"
+  version = "20.37.1"
 
   cluster_name    = var.eks_name
   cluster_version = var.eks_version
@@ -13,6 +13,11 @@ module "eks" {
     vpc-cni    = { most_recent = true }
   }
 
+  cluster_enabled_log_types = [
+    "audit",
+    "api",
+    "authenticator"
+  ]
   vpc_id     = module.vpc.vpc_id
   subnet_ids = local.public_and_private_subnets_ids
 
@@ -26,45 +31,54 @@ module "eks" {
     }
   }
   cluster_security_group_additional_rules = {
-    allow_networking_from_nodes = {
-      name                       = "sg1"
-      type                       = "ingress"
-      from_port                  = 0
-      to_port                    = 0
-      protocol                   = "-1"
-      source_node_security_group = true
-      description                = "allow inbound networking from nodes"
-    }
+    # allow_networking_from_nodes = {
+    #   name                       = "sg1"
+    #   type                       = "ingress"
+    #   from_port                  = 80
+    #   to_port                    = 80
+    #   protocol                   = "tcp"
+    #   source_node_security_group = true
+    #   description                = "allow inbound networking from nodes"
+    # }
+  #   allow_https_from_nodes = {
+  #   name                       = "allow-https-from-nodes"
+  #   type                       = "ingress"
+  #   from_port                  = 443
+  #   to_port                    = 443
+  #   protocol                   = "tcp"
+  #   source_node_security_group = true
+  #   description                = "Allow HTTPS from nodes"
+  # } - created by default(?)
   }
-
   node_security_group_additional_rules = {
     allow_inbound_networking_from_cluster = {
       name                          = "sg2"
       type                          = "ingress"
-      from_port                     = 0
-      to_port                       = 0
-      protocol                      = "-1"
+      from_port                     = 80
+      to_port                       = 80
+      protocol                      = "tcp"
       source_cluster_security_group = true
       description                   = "allow inbound networking from api_cluster"
     }
     allow_inbound_networking_from_node = {
       name                     = "sg3"
       type                     = "ingress"
-      from_port                = 0
-      to_port                  = 0
-      protocol                 = "-1"
+      from_port                = 80
+      to_port                  = 80
+      protocol                 = "tcp"
       source_security_group_id = module.eks.node_security_group_id
       description              = "allow traffic from node to node"
     }
     allow_inbound_networking_from_alb = {
       name                     = "sg4"
       type                     = "ingress"
-      to_port                  = 0
-      from_port                = 0
-      protocol                 = "-1"
+      to_port                  = 80
+      from_port                = 80
+      protocol                 = "tcp"
       source_security_group_id = aws_security_group.alb_sg_cluster.id
       description              = "allow inbound networking from ALB"
     }
+
   }
   tags = {
     Name = "Weathers_project"
@@ -74,3 +88,4 @@ module "eks" {
 
 # Define specific ports (e.g., 443, 80, 10250) instead of 0-0 -1
 # lets add logs to the cluster with cluster_enabled_log_types
+##done?

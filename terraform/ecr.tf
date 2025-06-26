@@ -6,7 +6,7 @@
 resource "aws_ecr_repository" "weather_repo" {
   for_each = toset(local.ecr_repositories)
   name     = each.key
-  
+
   image_scanning_configuration {
     scan_on_push = true
   }
