@@ -84,11 +84,13 @@ jobs:
 ##didnt understand what is secure, whats not, and basicly when to use what
       - name: Replace image tag in manifests
         run: | 
-          sed -i "s|weather-repo-frontend-api:.*|weather-repo-frontend-api:${{ env.IMAGE_TAG }}|" ./terraform/kubernetes/frontend.yaml
-          sed -i "s|weather-repo-backend-api:.*|weather-repo-backend-api:${{ env.IMAGE_TAG }}|" ./terraform/kubernetes/backend.yaml
+          sed -i "s|weather-repo-frontend-api:*|weather-repo-frontend-api:${{ env.IMAGE_TAG }}|" ./terraform/kubernetes/frontend.yaml
+          sed -i "s|weather-repo-backend-api:*|weather-repo-backend-api:${{ env.IMAGE_TAG }}|" ./terraform/kubernetes/backend.yaml
     
       - name: Debug manifest
-        run: cat ./terraform/kubernetes/backend.yaml
+        run: |
+          cat ./terraform/kubernetes/backend.yaml
+          cat ./terraform/kubernetes/frontend.yaml
 
       - name: Deploy to Kubernetes
         run: |
