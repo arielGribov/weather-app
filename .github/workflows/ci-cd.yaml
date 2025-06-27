@@ -86,6 +86,9 @@ jobs:
         run: | 
           sed -i "s|weather-repo-frontend-app:.*|weather-repo-frontend-app:${{ env.IMAGE_TAG }}|" ./terraform/kubernetes/frontend.yaml
           sed -i "s|weather-repo-backend-app:.*|weather-repo-backend-app:${{ env.IMAGE_TAG }}|" ./terraform/kubernetes/backend.yaml
+    
+      - name: Debug manifest
+        run: cat ./terraform/kubernetes/backend.yaml
 
       - name: Deploy to Kubernetes
         run: |
