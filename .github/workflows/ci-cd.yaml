@@ -38,9 +38,6 @@ jobs:
 
       - name: Build and Push Backend Image
         run: |
-          # docker build -t ${{ secrets.ECR_BACKEND_REPO }}:latest ./backend
-          # docker push ${{ secrets.ECR_BACKEND_REPO }}:latest
-
           IMAGE_TAG=$(date +%Y%m%d)-${GITHUB_SHA::7}
           docker build -t ${{ secrets.ECR_BACKEND_REPO }}:$IMAGE_TAG ./backend
           docker push ${{ secrets.ECR_BACKEND_REPO }}:$IMAGE_TAG
@@ -51,8 +48,8 @@ jobs:
 
       - name: Build and Push Frontend Image
         run: |
-          docker build -t ${{ secrets.ECR_FRONTEND_REPO }}:latest ./frontend
-          docker push ${{ secrets.ECR_FRONTEND_REPO }}:latest
+          docker build -t ${{ secrets.ECR_FRONTEND_REPO }}:$IMAGE_TAG ./frontend
+          docker push ${{ secrets.ECR_FRONTEND_REPO }}:$IMAGE_TAG
 
   deploy:
     name: Deploy to EKS
