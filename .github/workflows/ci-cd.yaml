@@ -97,7 +97,7 @@ jobs:
 
 # Tag Your Docker Images with Commit Hashes
 # Parallelize Build Jobs
-# Use aws eks update-kubeconfig Instead of Manual Kubeconfig -  Safer and more maintainable with IAM
+# Use aws eks update-kubeconfig Instead of Manual Kubeconfig -  Safer and more maintainable with IAM - i do dont i ? line 80
 # Use GitHub OIDC if Possible - Avoid long-lived AWS credentials.
 # Add Validation in Pre-deploy -
 # - name: Validate Kubernetes YAMLs
