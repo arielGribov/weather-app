@@ -40,8 +40,8 @@ jobs:
 
       - name: Build and Push Backend Image
         run: |
-          docker build -t ${{ secrets.ECR_BACKEND_REPO }}:$env.IMAGE_TAG ./backend
-          docker push ${{ secrets.ECR_BACKEND_REPO }}:$env.IMAGE_TAG
+          docker build -t ${{ secrets.ECR_BACKEND_REPO }}:${{ env.IMAGE_TAG }} ./backend
+          docker push ${{ secrets.ECR_BACKEND_REPO }}:${{ env.IMAGE_TAG }}
 
 # No Versioning or Tagging of Docker Images
 ##done
@@ -49,8 +49,8 @@ jobs:
 
       - name: Build and Push Frontend Image
         run: |
-          docker build -t ${{ secrets.ECR_FRONTEND_REPO }}:$env.IMAGE_TAG ./frontend
-          docker push ${{ secrets.ECR_FRONTEND_REPO }}:$env.IMAGE_TAG
+          docker build -t ${{ secrets.ECR_FRONTEND_REPO }}:${{ env.IMAGE_TAG }} ./frontend
+          docker push ${{ secrets.ECR_FRONTEND_REPO }}:${{ env.IMAGE_TAG }}
 
   deploy:
     name: Deploy to EKS
