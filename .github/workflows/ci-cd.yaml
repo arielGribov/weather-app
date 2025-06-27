@@ -41,7 +41,7 @@ jobs:
           # docker build -t ${{ secrets.ECR_BACKEND_REPO }}:latest ./backend
           # docker push ${{ secrets.ECR_BACKEND_REPO }}:latest
 
-          IMAGE_TAG=${{(date +%Y%m%d)-${GITHUB_SHA::7}}}
+          IMAGE_TAG=$(date +%Y%m%d)-${GITHUB_SHA::7}
           docker build -t ${{ secrets.ECR_BACKEND_REPO }}:$IMAGE_TAG ./backend
           docker push ${{ secrets.ECR_BACKEND_REPO }}:$IMAGE_TAG
 
