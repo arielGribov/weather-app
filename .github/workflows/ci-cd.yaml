@@ -82,6 +82,12 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
 #Unsafe Kubeconfig via Secret
 ##didnt understand what is secure, whats not, and basicly when to use what
+      - name: Replace image tag in manifests
+        run: |
+          
+          sed -i "s|weather-repo-frontend-app:.*|weather-repo-frontend-app:${{ env.IMAGE_TAG }}|" ./terraform/kubernetes/frontend.yaml
+          sed -i "s|weather-repo-backend-app:.*|weather-repo-backend-app:${{ env.IMAGE_TAG }}|"./terraform/kubernetes/backend.yaml
+
       - name: Deploy to Kubernetes
         run: |
           kubectl apply -f ./terraform/kubernetes/backend.yaml
