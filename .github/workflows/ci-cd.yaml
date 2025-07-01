@@ -91,6 +91,11 @@ jobs:
         run: |
           cat ./terraform/kubernetes/backend.yaml
           cat ./terraform/kubernetes/frontend.yaml
+          
+      - name: Validate Kubernetes YAMLs
+        run: |
+          kubectl apply --dry-run=client -f ./terraform/kubernetes/backend.yaml
+          kubectl apply --dry-run=client -f ./terraform/kubernetes/frontend.yaml
 
       - name: Deploy to Kubernetes
         run: |
@@ -101,14 +106,18 @@ jobs:
 
 
 # Tag Your Docker Images with Commit Hashes
+
 # Parallelize Build Jobs
+
 # Use aws eks update-kubeconfig Instead of Manual Kubeconfig -  Safer and more maintainable with IAM - i do dont i ? line 80
+
 # Use GitHub OIDC if Possible - Avoid long-lived AWS credentials.
+
 # Add Validation in Pre-deploy -
 # - name: Validate Kubernetes YAMLs
 #   run: |
 #     kubectl apply --dry-run=client -f ./terraform/kubernetes/
-
+##
 
 # Artifact Promotion Strategy
 # For production pipelines, you should separate build and deploy pipelines with proper artifact passing.
