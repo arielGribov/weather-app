@@ -7,7 +7,11 @@ name: CI/CD Pipeline
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
   IMAGE_TAG: $(date +%Y%m%d)-${GITHUB_SHA::7}
+  AWS_ACCOUNT: '205930636266'
 
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   build-and-push:
@@ -15,14 +19,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+      # - name: Checkout Code
+      #   uses: actions/checkout@v3
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+      # - name: Configure AWS Credentials
+      #   uses: aws-actions/configure-aws-credentials@v2
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: ${{ env.AWS_REGION }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/github-oidc-deploy-role
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Log in to Docker Hub
@@ -91,7 +104,7 @@ jobs:
         run: |
           cat ./terraform/kubernetes/backend.yaml
           cat ./terraform/kubernetes/frontend.yaml
-          
+
       - name: Validate Kubernetes YAMLs
         run: |
           kubectl apply --dry-run=client -f ./terraform/kubernetes/backend.yaml
@@ -117,7 +130,7 @@ jobs:
 # - name: Validate Kubernetes YAMLs
 #   run: |
 #     kubectl apply --dry-run=client -f ./terraform/kubernetes/
-##
+##done
 
 # Artifact Promotion Strategy
 # For production pipelines, you should separate build and deploy pipelines with proper artifact passing.
