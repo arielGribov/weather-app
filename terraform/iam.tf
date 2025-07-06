@@ -18,7 +18,7 @@ resource "aws_iam_role" "github_oidc_deploy_role" {
         Action = "sts:AssumeRoleWithWebIdentity",
         Condition = {
           StringLike = {
-            "token.actions.githubusercontent.com:sub" = "repo:arielGribov/weather-app:*"
+            "token.actions.githubusercontent.com:sub" = "repo:${var.github_org}/${var.github_repo}:*"
           }
         }
       }

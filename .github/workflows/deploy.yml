@@ -1,9 +1,10 @@
-name: CI/CD Pipeline
+name: CD Pipeline
 
 on:
-  workflow_dispatch:
-  # push:
-    # branches: '**'
+  workflow_run:
+    workflows: ["CI Pipeline"] 
+    types:
+      - completed
 
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
@@ -15,60 +16,9 @@ permissions:
   contents: read
 
 jobs:
-  build-and-push:
-    name: Build and Push Docker Images
-    runs-on: ubuntu-latest
-
-    steps:
-      # - name: Checkout Code
-      #   uses: actions/checkout@v3
-
-      # - name: Configure AWS Credentials
-      #   uses: aws-actions/configure-aws-credentials@v2
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     aws-region: ${{ env.AWS_REGION }}
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Configure AWS credentials via OIDC
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/github-oidc-deploy-role
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Log in to Docker Hub
-        run: |
-          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_BACKEND_REPO }}
-
-# lets use this insted -
-# - name: Login to Amazon ECR
-#   uses: aws-actions/amazon-ecr-login@v1
-## please explain
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Build and Push Backend Image
-        run: |
-          docker build -t ${{ secrets.ECR_BACKEND_REPO }}:${{ env.IMAGE_TAG }} ./backend
-          docker push ${{ secrets.ECR_BACKEND_REPO }}:${{ env.IMAGE_TAG }}
-
-# No Versioning or Tagging of Docker Images
-##done
-
-
-      - name: Build and Push Frontend Image
-        run: |
-          docker build -t ${{ secrets.ECR_FRONTEND_REPO }}:${{ env.IMAGE_TAG }} ./frontend
-          docker push ${{ secrets.ECR_FRONTEND_REPO }}:${{ env.IMAGE_TAG }}
-
   deploy:
     name: Deploy to EKS
-    needs: build-and-push
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -128,20 +78,3 @@ jobs:
 
 
 
-# Tag Your Docker Images with Commit Hashes
-
-# Parallelize Build Jobs
-
-# Use aws eks update-kubeconfig Instead of Manual Kubeconfig -  Safer and more maintainable with IAM - i do dont i ? line 80
-
-# Use GitHub OIDC if Possible - Avoid long-lived AWS credentials.
-##done
-
-# Add Validation in Pre-deploy -
-# - name: Validate Kubernetes YAMLs
-#   run: |
-#     kubectl apply --dry-run=client -f ./terraform/kubernetes/
-##done
-
-# Artifact Promotion Strategy
-# For production pipelines, you should separate build and deploy pipelines with proper artifact passing.

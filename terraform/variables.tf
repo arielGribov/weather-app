@@ -47,3 +47,15 @@ variable "eks_version" {
   type    = string
   default = "1.32"
 }
+
+variable "github_org" {
+  type        = string
+  description = "GitHub organization"
+  default = "arielGribov"
+}
+
+variable "github_repo" {
+  type        = string
+  description = "GitHub repository"
+  default = "weather-app"
+}
