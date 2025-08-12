@@ -2,7 +2,7 @@ name: CI Pipeline
 
 on:
   push:
-    branches: '**'
+    # branches: '**'
 
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   build-and-push:
-    name: Build and Push Docker Images
+    name: Build and Push Docker Images - CI Pipeline
     runs-on: ubuntu-latest
 
     steps:
@@ -55,12 +55,10 @@ jobs:
         run: |
           docker build -t ${{ secrets.ECR_BACKEND_REPO }}:${{ env.IMAGE_TAG }} ./backend
           docker push ${{ secrets.ECR_BACKEND_REPO }}:${{ env.IMAGE_TAG }}
-
 # No Versioning or Tagging of Docker Images
 ##done
-
-
       - name: Build and Push Frontend Image
         run: |
           docker build -t ${{ secrets.ECR_FRONTEND_REPO }}:${{ env.IMAGE_TAG }} ./frontend
           docker push ${{ secrets.ECR_FRONTEND_REPO }}:${{ env.IMAGE_TAG }}
+

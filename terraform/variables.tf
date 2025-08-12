@@ -51,11 +51,11 @@ variable "eks_version" {
 variable "github_org" {
   type        = string
   description = "GitHub organization"
-  default = "arielGribov"
+  default     = "arielGribov"
 }
 
 variable "github_repo" {
   type        = string
   description = "GitHub repository"
-  default = "weather-app"
+  default     = "weather-app"
 }

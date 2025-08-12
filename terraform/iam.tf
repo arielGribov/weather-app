@@ -1,7 +1,7 @@
 resource "aws_iam_openid_connect_provider" "github" {
   url             = "https://token.actions.githubusercontent.com"
   client_id_list  = ["sts.amazonaws.com"]
-  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"] 
+  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
 }
 
 resource "aws_iam_role" "github_oidc_deploy_role" {
@@ -51,7 +51,7 @@ resource "aws_iam_role_policy" "github_actions" {
         Action = [
           "eks:DescribeCluster"
         ],
-      Resource = "arn:aws:eks:${var.region}:${var.account_id}:cluster/${var.eks_name}"
+        Resource = "arn:aws:eks:${var.region}:${var.account_id}:cluster/${var.eks_name}"
       }
     ]
   })

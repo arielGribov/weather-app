@@ -40,15 +40,15 @@ module "eks" {
     #   source_node_security_group = true
     #   description                = "allow inbound networking from nodes"
     # }
-  #   allow_https_from_nodes = {
-  #   name                       = "allow-https-from-nodes"
-  #   type                       = "ingress"
-  #   from_port                  = 443
-  #   to_port                    = 443
-  #   protocol                   = "tcp"
-  #   source_node_security_group = true
-  #   description                = "Allow HTTPS from nodes"
-  # } - created by default(?)
+    #   allow_https_from_nodes = {
+    #   name                       = "allow-https-from-nodes"
+    #   type                       = "ingress"
+    #   from_port                  = 443
+    #   to_port                    = 443
+    #   protocol                   = "tcp"
+    #   source_node_security_group = true
+    #   description                = "Allow HTTPS from nodes"
+    # } - created by default(?)
   }
   node_security_group_additional_rules = {
     allow_inbound_networking_from_cluster = {
