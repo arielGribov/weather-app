@@ -49,6 +49,7 @@ resource "aws_iam_role_policy" "github_actions" {
       {
         Effect = "Allow",
         Action = [
+          "eks:ListClusters",
           "eks:DescribeCluster"
         ],
         Resource = "arn:aws:eks:${var.region}:${var.account_id}:cluster/${var.eks_name}"
