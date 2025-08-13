@@ -117,12 +117,12 @@ jobs:
 
       - name: Validate Kubernetes YAMLs
         run: |
-          kubectl apply --server-side --dry-run=client -f ./terraform/kubernetes/backend.yaml
+          kubectl apply --dry-run=client -f ./terraform/kubernetes/backend.yaml
           kubectl apply --dry-run=client -f ./terraform/kubernetes/frontend.yaml
 
       - name: Deploy to Kubernetes
         run: |
-          kubectl apply -f ./terraform/kubernetes/backend.yaml
+          kubectl apply --server-side -f ./terraform/kubernetes/backend.yaml
           kubectl apply -f ./terraform/kubernetes/frontend.yaml
 
 
