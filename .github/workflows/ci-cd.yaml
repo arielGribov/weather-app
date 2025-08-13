@@ -101,6 +101,8 @@ jobs:
           CLUSTER_NAME=$(aws eks list-clusters --region $AWS_REGION --query "clusters[0]" --output text)
           echo "CLUSTER_NAME=$CLUSTER_NAME" >> $GITHUB_ENV
           aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
+          kubectl version
+
         env:
           AWS_REGION: ${{ secrets.AWS_REGION }}
 #Unsafe Kubeconfig via Secret
@@ -114,7 +116,6 @@ jobs:
         run: |
           cat ./terraform/kubernetes/backend.yaml
           cat ./terraform/kubernetes/frontend.yaml
-          kubectl version
 
       - name: Validate Kubernetes YAMLs
         run: |
