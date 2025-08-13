@@ -114,6 +114,7 @@ jobs:
         run: |
           cat ./terraform/kubernetes/backend.yaml
           cat ./terraform/kubernetes/frontend.yaml
+          Kubectl version
 
       - name: Validate Kubernetes YAMLs
         run: |
