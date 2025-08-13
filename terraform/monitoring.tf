@@ -30,6 +30,7 @@
 
 
 
+
 # resource "kubernetes_namespace" "kube-namespace" {
 #   depends_on = [module.eks]
 #   metadata {
