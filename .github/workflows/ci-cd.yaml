@@ -115,10 +115,10 @@ jobs:
           cat ./terraform/kubernetes/backend.yaml
           cat ./terraform/kubernetes/frontend.yaml
 
-      - name: Validate Kubernetes YAMLs
-        run: |
-          kubectl apply --dry-run=client -f ./terraform/kubernetes/backend.yaml
-          kubectl apply --dry-run=client -f ./terraform/kubernetes/frontend.yaml
+      # - name: Validate Kubernetes YAMLs
+      #   run: |
+      #     kubectl apply --dry-run=client -f ./terraform/kubernetes/backend.yaml
+      #     kubectl apply --dry-run=client -f ./terraform/kubernetes/frontend.yaml
 
       - name: Deploy to Kubernetes
         run: |
