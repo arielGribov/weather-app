@@ -1,0 +1,45 @@
+podSecurityPolicy:
+  enabled: true
+
+server:
+  persistentVolume:
+    enabled: false
+  resources:
+    limits:
+      cpu: "200m"
+      memory: "50Mi"
+    requests:
+      cpu: "100m"
+      memory: "30Mi"
+  retention: 15d
+  storageSpec:
+    volumeClaimTemplate:
+      spec:
+        storageClassName: gp3
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 20Gi
+
+grafana:
+  enabled: true
+  adminUser: admin
+  adminPassword: "ChangeMe123!" # Change for production to secret or SSM/KMS
+  service:
+    type: ClusterIP
+  ingress:
+    enabled: false
+    # To enable ingress with ALB or NGINX, uncomment and configure below
+    # ingressClassName: alb
+    # annotations:
+    #   kubernetes.io/ingress.class: alb
+    #   alb.ingress.kubernetes.io/scheme: internet-facing
+    #   alb.ingress.kubernetes.io/target-type: ip
+    # hosts:
+    #   - grafana.example.com
+
+nodeExporter:
+  enabled: true
+
+kubeStateMetrics:
+  enabled: true
