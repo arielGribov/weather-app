@@ -205,7 +205,7 @@ jobs:
             -e REQUESTS_CA_BUNDLE=/root/symantec_wss_ca.pem \
             -e SSL_CERT_FILE=/root/symantec_wss_ca.pem \
             -e HTTPLIB2_CA_CERTS=/root/symantec_wss_ca.pem \
-            amazon/aws-cli:2 \
+            # amazon/aws-cli:2 \
             ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_BACKEND_REPO }}
 
       - name: Push Backend Image
@@ -223,7 +223,7 @@ jobs:
             -e REQUESTS_CA_BUNDLE=/root/symantec_wss_ca.pem \
             -e SSL_CERT_FILE=/root/symantec_wss_ca.pem \
             -e HTTPLIB2_CA_CERTS=/root/symantec_wss_ca.pem \
-            amazon/aws-cli:2 \
+            # amazon/aws-cli:2 \
             ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_FRONTEND_REPO }}
 
       - name: Push Frontend Image
