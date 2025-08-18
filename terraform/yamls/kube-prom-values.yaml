@@ -26,7 +26,7 @@ grafana:
   adminUser: admin
   adminPassword: "ChangeMe123!" # Change for production to secret or SSM/KMS
   service:
-    type: ClusterIP
+    type: LoadBalancer
   ingress:
     enabled: false
     # To enable ingress with ALB or NGINX, uncomment and configure below
