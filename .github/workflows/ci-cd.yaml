@@ -280,3 +280,6 @@ jobs:
         run: |
           kubectl apply -f ./terraform/kubernetes/backend.yaml
           kubectl apply -f ./terraform/kubernetes/frontend.yaml
+
+
+        
