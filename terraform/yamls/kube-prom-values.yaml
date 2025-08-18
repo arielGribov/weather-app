@@ -21,6 +21,7 @@ server:
           requests:
             storage: 20Gi
 
+
 grafana:
   enabled: true
   adminUser: admin
