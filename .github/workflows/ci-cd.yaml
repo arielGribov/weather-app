@@ -150,7 +150,6 @@
 
 
 
-
 name: CI/CD Pipeline
 
 on:
@@ -162,11 +161,11 @@ env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
   IMAGE_TAG: $(date +%Y%m%d)-${GITHUB_SHA::7}
   AWS_ACCOUNT: '205930636266'
-  NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/symantec_wss.pem
+  AWS_CA_BUNDLE: /usr/local/share/ca-certificates/symantec_wss.pem
   REQUESTS_CA_BUNDLE: /usr/local/share/ca-certificates/symantec_wss.pem
   SSL_CERT_FILE: /usr/local/share/ca-certificates/symantec_wss.pem
   HTTPLIB2_CA_CERTS: /usr/local/share/ca-certificates/symantec_wss.pem
-  AWS_CA_BUNDLE: /usr/local/share/ca-certificates/symantec_wss.pem
+  NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/symantec_wss.pem
 
 permissions:
   id-token: write
@@ -180,7 +179,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Add Symantec WSS Root CA
         run: |
           cat > symantec_wss.pem <<'EOF'
@@ -188,7 +187,6 @@ jobs:
           EOF
           sudo mv symantec_wss.pem /usr/local/share/ca-certificates/symantec_wss.pem
           sudo update-ca-certificates
- 
 
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
@@ -225,8 +223,10 @@ jobs:
 
       - name: Add Symantec WSS Root CA
         run: |
-          echo "${{ secrets.SYMANTEC_WSS_CERT }}" > /usr/local/share/ca-certificates/symantec_wss.pem
-          sudo cp /usr/local/share/ca-certificates/symantec_wss.pem /usr/local/share/ca-certificates/
+          cat > symantec_wss.pem <<'EOF'
+          ${{ secrets.SYMANTEC_WSS_CERT }}
+          EOF
+          sudo mv symantec_wss.pem /usr/local/share/ca-certificates/symantec_wss.pem
           sudo update-ca-certificates
 
       - name: Configure AWS credentials via OIDC
