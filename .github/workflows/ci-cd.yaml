@@ -85,9 +85,9 @@ jobs:
       - name: Configure Corporate Proxy and CA Certificate
         run: |
             echo "${CUSTOM_CA_CERT_PEM}" > /tmp/custom_ca.pem
-            echo "export AWS_CA_BUNDLE=/tmp/custom_ca.pem" >> $BASH_ENV
-            echo "export REQUESTS_CA_BUNDLE=/tmp/custom_ca.pem" >> $BASH_ENV
-            echo "export SSL_CERT_FILE=/tmp/custom_ca.pem" >> $BASH_ENV
+            echo "export AWS_CA_BUNDLE=/tmp/custom_ca.pem" >> $GITHUB_ENV
+            echo "export REQUESTS_CA_BUNDLE=/tmp/custom_ca.pem" >> $GITHUB_ENV
+            echo "export SSL_CERT_FILE=/tmp/custom_ca.pem" >> $GITHUB_ENV
             echo "CA Certificate configured."
         env:
             CUSTOM_CA_CERT_PEM: ${{ secrets.CUSTOM_CA_CERT_PEM }}
