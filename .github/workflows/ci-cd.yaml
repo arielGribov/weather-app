@@ -200,13 +200,8 @@ jobs:
 
       - name: ECR Login Backend
         run: |
-          docker run --rm \
-            -v ~/.cert/symantec_wss_ca.pem:/root/symantec_wss_ca.pem \
-            -e REQUESTS_CA_BUNDLE=/root/symantec_wss_ca.pem \
-            -e SSL_CERT_FILE=/root/symantec_wss_ca.pem \
-            -e HTTPLIB2_CA_CERTS=/root/symantec_wss_ca.pem \
-            # amazon/aws-cli:2 \
-            ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_BACKEND_REPO }}
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | \
+          docker login --username AWS --password-stdin ${{ secrets.ECR_BACKEND_REPO }}
 
       - name: Push Backend Image
         run: |
@@ -218,13 +213,8 @@ jobs:
 
       - name: ECR Login Frontend
         run: |
-          docker run --rm \
-            -v ~/.cert/symantec_wss_ca.pem:/root/symantec_wss_ca.pem \
-            -e REQUESTS_CA_BUNDLE=/root/symantec_wss_ca.pem \
-            -e SSL_CERT_FILE=/root/symantec_wss_ca.pem \
-            -e HTTPLIB2_CA_CERTS=/root/symantec_wss_ca.pem \
-            # amazon/aws-cli:2 \
-            ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_FRONTEND_REPO }}
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | \
+          docker login --username AWS --password-stdin ${{ secrets.ECR_FRONTEND_REPO }}
 
       - name: Push Frontend Image
         run: |
