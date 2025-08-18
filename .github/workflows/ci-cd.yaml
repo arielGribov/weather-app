@@ -149,7 +149,6 @@
 # For production pipelines, you should separate build and deploy pipelines with proper artifact passing.
 
 
-
 name: CI/CD Pipeline
 
 on:
@@ -180,12 +179,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Add Symantec WSS Root CA
+      - name: Add Symantec WSS Root CA to runner
         run: |
-          cat > symantec_wss.pem <<'EOF'
+          mkdir -p ~/.cert
+          cat > ~/.cert/symantec_wss_ca.pem <<'EOF'
           ${{ secrets.SYMANTEC_WSS_CERT }}
           EOF
-          sudo mv symantec_wss.pem /usr/local/share/ca-certificates/symantec_wss.pem
+          sudo cp ~/.cert/symantec_wss_ca.pem /usr/local/share/ca-certificates/symantec_wss.pem
           sudo update-ca-certificates
 
       - name: Configure AWS credentials via OIDC
@@ -194,22 +194,40 @@ jobs:
           role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/github-oidc-deploy-role
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Log in to Docker Hub
-        run: |
-          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_BACKEND_REPO }}
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Build and Push Backend Image
+      - name: Build Backend Image
         run: |
           docker build -t ${{ secrets.ECR_BACKEND_REPO }}:${{ env.IMAGE_TAG }} ./backend
+
+      - name: ECR Login Backend
+        run: |
+          docker run --rm \
+            -v ~/.cert/symantec_wss_ca.pem:/root/symantec_wss_ca.pem \
+            -e REQUESTS_CA_BUNDLE=/root/symantec_wss_ca.pem \
+            -e SSL_CERT_FILE=/root/symantec_wss_ca.pem \
+            -e HTTPLIB2_CA_CERTS=/root/symantec_wss_ca.pem \
+            amazon/aws-cli:2 \
+            ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_BACKEND_REPO }}
+
+      - name: Push Backend Image
+        run: |
           docker push ${{ secrets.ECR_BACKEND_REPO }}:${{ env.IMAGE_TAG }}
 
-      - name: Build and Push Frontend Image
+      - name: Build Frontend Image
         run: |
           docker build -t ${{ secrets.ECR_FRONTEND_REPO }}:${{ env.IMAGE_TAG }} ./frontend
+
+      - name: ECR Login Frontend
+        run: |
+          docker run --rm \
+            -v ~/.cert/symantec_wss_ca.pem:/root/symantec_wss_ca.pem \
+            -e REQUESTS_CA_BUNDLE=/root/symantec_wss_ca.pem \
+            -e SSL_CERT_FILE=/root/symantec_wss_ca.pem \
+            -e HTTPLIB2_CA_CERTS=/root/symantec_wss_ca.pem \
+            amazon/aws-cli:2 \
+            ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_FRONTEND_REPO }}
+
+      - name: Push Frontend Image
+        run: |
           docker push ${{ secrets.ECR_FRONTEND_REPO }}:${{ env.IMAGE_TAG }}
 
   deploy:
@@ -221,12 +239,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Add Symantec WSS Root CA
+      - name: Add Symantec WSS Root CA to runner
         run: |
-          cat > symantec_wss.pem <<'EOF'
+          mkdir -p ~/.cert
+          cat > ~/.cert/symantec_wss_ca.pem <<'EOF'
           ${{ secrets.SYMANTEC_WSS_CERT }}
           EOF
-          sudo mv symantec_wss.pem /usr/local/share/ca-certificates/symantec_wss.pem
+          sudo cp ~/.cert/symantec_wss_ca.pem /usr/local/share/ca-certificates/symantec_wss.pem
           sudo update-ca-certificates
 
       - name: Configure AWS credentials via OIDC
@@ -240,7 +259,6 @@ jobs:
           CLUSTER_NAME=$(aws eks list-clusters --region $AWS_REGION --query "clusters[0]" --output text)
           echo "CLUSTER_NAME=$CLUSTER_NAME" >> $GITHUB_ENV
           aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
-
         env:
           AWS_REGION: ${{ secrets.AWS_REGION }}
 
@@ -248,7 +266,7 @@ jobs:
         run: | 
           sed -i "s|weather-repo-frontend-app*|weather-repo-frontend-app:${{ env.IMAGE_TAG }}|" ./terraform/kubernetes/frontend.yaml
           sed -i "s|weather-repo-backend-api*|weather-repo-backend-api:${{ env.IMAGE_TAG }}|" ./terraform/kubernetes/backend.yaml
-    
+
       - name: Debug manifest
         run: |
           cat ./terraform/kubernetes/backend.yaml
