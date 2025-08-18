@@ -183,12 +183,12 @@ jobs:
       
       - name: Add Symantec WSS Root CA
         run: |
-          echo "${{ secrets.SYMANTEC_WSS_CERT }}" | sudo tee /usr/local/share/ca-certificates/symantec_wss.pem > /dev/null
+          cat > symantec_wss.pem <<'EOF'
+          ${{ secrets.SYMANTEC_WSS_CERT }}
+          EOF
+          sudo mv symantec_wss.pem /usr/local/share/ca-certificates/symantec_wss.pem
           sudo update-ca-certificates
  
-          # echo "${{ secrets.SYMANTEC_WSS_CERT }}" > /usr/local/share/ca-certificates/symantec_wss.pem
-          # sudo cp /usr/local/share/ca-certificates/symantec_wss.pem /usr/local/share/ca-certificates/
-          # sudo update-ca-certificates
 
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
