@@ -1,141 +1,131 @@
-name: CI/CD Pipeline
+# name: CI/CD Pipeline
 
-on:
-  workflow_dispatch:
-  push:
-    branches: '**'
+# on:
+#   workflow_dispatch:
+#   push:
+#     branches: '**'
 
-env:
-  AWS_REGION: ${{ secrets.AWS_REGION }}
-  IMAGE_TAG: $(date +%Y%m%d)-${GITHUB_SHA::7}
-  AWS_ACCOUNT: '205930636266'
+# env:
+#   AWS_REGION: ${{ secrets.AWS_REGION }}
+#   IMAGE_TAG: $(date +%Y%m%d)-${GITHUB_SHA::7}
+#   AWS_ACCOUNT: '205930636266'
 
-permissions:
-  id-token: write
-  contents: read
+# permissions:
+#   id-token: write
+#   contents: read
 
-jobs:
-  build-and-push:
-    name: Build and Push Docker Images
-    runs-on: ubuntu-latest
+# jobs:
+#   build-and-push:
+#     name: Build and Push Docker Images
+#     runs-on: ubuntu-latest
 
-    steps:
-      # - name: Checkout Code
-      #   uses: actions/checkout@v3
+#     steps:
+#       # - name: Checkout Code
+#       #   uses: actions/checkout@v3
 
-      # - name: Configure AWS Credentials
-      #   uses: aws-actions/configure-aws-credentials@v2
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     aws-region: ${{ env.AWS_REGION }}
+#       # - name: Configure AWS Credentials
+#       #   uses: aws-actions/configure-aws-credentials@v2
+#       #   with:
+#       #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#       #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#       #     aws-region: ${{ env.AWS_REGION }}
 
-      - name: Checkout repository
-        uses: actions/checkout@v4
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials via OIDC
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/github-oidc-deploy-role
-          aws-region: ${{ env.AWS_REGION }}
+#       - name: Configure AWS credentials via OIDC
+#         uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/github-oidc-deploy-role
+#           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Log in to Docker Hub
-        run: |
-          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_BACKEND_REPO }}
+#       - name: Log in to Docker Hub
+#         run: |
+#           aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_BACKEND_REPO }}
 
-# lets use this insted -
-# - name: Login to Amazon ECR
-#   uses: aws-actions/amazon-ecr-login@v1
-## please explain
+# # lets use this insted -
+# # - name: Login to Amazon ECR
+# #   uses: aws-actions/amazon-ecr-login@v1
+# ## please explain
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+#       - name: Login to Amazon ECR
+#         id: login-ecr
+#         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Build and Push Backend Image
-        run: |
-          docker build -t ${{ secrets.ECR_BACKEND_REPO }}:${{ env.IMAGE_TAG }} ./backend
-          docker push ${{ secrets.ECR_BACKEND_REPO }}:${{ env.IMAGE_TAG }}
+#       - name: Build and Push Backend Image
+#         run: |
+#           docker build -t ${{ secrets.ECR_BACKEND_REPO }}:${{ env.IMAGE_TAG }} ./backend
+#           docker push ${{ secrets.ECR_BACKEND_REPO }}:${{ env.IMAGE_TAG }}
 
-# No Versioning or Tagging of Docker Images
-##done
+# # No Versioning or Tagging of Docker Images
+# ##done
 
 
-      - name: Build and Push Frontend Image
-        run: |
-          docker build -t ${{ secrets.ECR_FRONTEND_REPO }}:${{ env.IMAGE_TAG }} ./frontend
-          docker push ${{ secrets.ECR_FRONTEND_REPO }}:${{ env.IMAGE_TAG }}
+#       - name: Build and Push Frontend Image
+#         run: |
+#           docker build -t ${{ secrets.ECR_FRONTEND_REPO }}:${{ env.IMAGE_TAG }} ./frontend
+#           docker push ${{ secrets.ECR_FRONTEND_REPO }}:${{ env.IMAGE_TAG }}
 
-  deploy:
-    name: Deploy to EKS
-    needs: build-and-push
-    runs-on: ubuntu-latest
+#   deploy:
+#     name: Deploy to EKS
+#     needs: build-and-push
+#     runs-on: ubuntu-latest
 
-    steps:
-      # - name: Checkout Code
-      #   uses: actions/checkout@v3
+#     steps:
+#       # - name: Checkout Code
+#       #   uses: actions/checkout@v3
 
-      # - name: Configure AWS Credentials
-      #   uses: aws-actions/configure-aws-credentials@v2
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     aws-region: ${{ env.AWS_REGION }}
+#       # - name: Configure AWS Credentials
+#       #   uses: aws-actions/configure-aws-credentials@v2
+#       #   with:
+#       #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#       #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#       #     aws-region: ${{ env.AWS_REGION }}
 
-      - name: Configure Corporate Proxy and CA Certificate
-        run: |
-            echo "${CUSTOM_CA_CERT_PEM}" > /tmp/custom_ca.pem
-            echo "export AWS_CA_BUNDLE=/tmp/custom_ca.pem" >> $GITHUB_ENV
-            echo "export REQUESTS_CA_BUNDLE=/tmp/custom_ca.pem" >> $GITHUB_ENV
-            echo "export SSL_CERT_FILE=/tmp/custom_ca.pem" >> $GITHUB_ENV
-            echo "CA Certificate configured."
-        env:
-            CUSTOM_CA_CERT_PEM: ${{ secrets.CUSTOM_CA_CERT_PEM }}
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
 
-      - name: Checkout repository
-        uses: actions/checkout@v4
+#       - name: Configure AWS credentials via OIDC
+#         uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/github-oidc-deploy-role
+#           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Configure AWS credentials via OIDC
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/github-oidc-deploy-role
-          aws-region: ${{ env.AWS_REGION }}
+#       # - name: Setup Kubeconfig
+#       #   run: |
+#       #     echo "${{ secrets.KUBECONFIG_CONTENT }}" | base64 -d > kubeconfig
+#       #     export KUBECONFIG=$(pwd)/kubeconfig
 
-      # - name: Setup Kubeconfig
-      #   run: |
-      #     echo "${{ secrets.KUBECONFIG_CONTENT }}" | base64 -d > kubeconfig
-      #     export KUBECONFIG=$(pwd)/kubeconfig
+#       - name: Get EKS Cluster Name and Setup Kubeconfig
+#         run: |
+#           CLUSTER_NAME=$(aws eks list-clusters --region $AWS_REGION --query "clusters[0]" --output text)
+#           echo "CLUSTER_NAME=$CLUSTER_NAME" >> $GITHUB_ENV
+#           aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
 
-      - name: Get EKS Cluster Name and Setup Kubeconfig
-        run: |
-          CLUSTER_NAME=$(aws eks list-clusters --region $AWS_REGION --query "clusters[0]" --output text)
-          echo "CLUSTER_NAME=$CLUSTER_NAME" >> $GITHUB_ENV
-          aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
-
-        env:
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-#Unsafe Kubeconfig via Secret
-##didnt understand what is secure, whats not, and basicly when to use what
-      - name: Replace image tag in manifests
-        run: | 
-          sed -i "s|weather-repo-frontend-app*|weather-repo-frontend-app:${{ env.IMAGE_TAG }}|" ./terraform/kubernetes/frontend.yaml
-          sed -i "s|weather-repo-backend-api*|weather-repo-backend-api:${{ env.IMAGE_TAG }}|" ./terraform/kubernetes/backend.yaml
+#         env:
+#           AWS_REGION: ${{ secrets.AWS_REGION }}
+# #Unsafe Kubeconfig via Secret
+# ##didnt understand what is secure, whats not, and basicly when to use what
+#       - name: Replace image tag in manifests
+#         run: | 
+#           sed -i "s|weather-repo-frontend-app*|weather-repo-frontend-app:${{ env.IMAGE_TAG }}|" ./terraform/kubernetes/frontend.yaml
+#           sed -i "s|weather-repo-backend-api*|weather-repo-backend-api:${{ env.IMAGE_TAG }}|" ./terraform/kubernetes/backend.yaml
     
-      - name: Debug manifest
-        run: |
-          cat ./terraform/kubernetes/backend.yaml
-          cat ./terraform/kubernetes/frontend.yaml
+#       - name: Debug manifest
+#         run: |
+#           cat ./terraform/kubernetes/backend.yaml
+#           cat ./terraform/kubernetes/frontend.yaml
 
-      - name: Validate Kubernetes YAMLs
-        run: |
-          kubectl apply --dry-run=client -f ./terraform/kubernetes/backend.yaml
-          kubectl apply --dry-run=client -f ./terraform/kubernetes/frontend.yaml
+#       - name: Validate Kubernetes YAMLs
+#         run: |
+#           kubectl apply --dry-run=client -f ./terraform/kubernetes/backend.yaml
+#           kubectl apply --dry-run=client -f ./terraform/kubernetes/frontend.yaml
 
-      - name: Deploy to Kubernetes
-        run: |
+#       - name: Deploy to Kubernetes
+#         run: |
         
-          kubectl apply -f ./terraform/kubernetes/backend.yaml
-          kubectl apply -f ./terraform/kubernetes/frontend.yaml
+#           kubectl apply -f ./terraform/kubernetes/backend.yaml
+#           kubectl apply -f ./terraform/kubernetes/frontend.yaml
 
 
 
@@ -157,3 +147,116 @@ jobs:
 
 # Artifact Promotion Strategy
 # For production pipelines, you should separate build and deploy pipelines with proper artifact passing.
+
+
+
+
+name: CI/CD Pipeline
+
+on:
+  workflow_dispatch:
+  push:
+    branches: '**'
+
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  IMAGE_TAG: $(date +%Y%m%d)-${GITHUB_SHA::7}
+  AWS_ACCOUNT: '205930636266'
+  NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/symantec_wss.pem
+  REQUESTS_CA_BUNDLE: /usr/local/share/ca-certificates/symantec_wss.pem
+  SSL_CERT_FILE: /usr/local/share/ca-certificates/symantec_wss.pem
+  HTTPLIB2_CA_CERTS: /usr/local/share/ca-certificates/symantec_wss.pem
+  AWS_CA_BUNDLE: /usr/local/share/ca-certificates/symantec_wss.pem
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-push:
+    name: Build and Push Docker Images
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Add Symantec WSS Root CA
+        run: |
+          echo "${{ secrets.SYMANTEC_WSS_CERT }}" > /usr/local/share/ca-certificates/symantec_wss.pem
+          sudo cp /usr/local/share/ca-certificates/symantec_wss.pem /usr/local/share/ca-certificates/
+          sudo update-ca-certificates
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/github-oidc-deploy-role
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Log in to Docker Hub
+        run: |
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_BACKEND_REPO }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build and Push Backend Image
+        run: |
+          docker build -t ${{ secrets.ECR_BACKEND_REPO }}:${{ env.IMAGE_TAG }} ./backend
+          docker push ${{ secrets.ECR_BACKEND_REPO }}:${{ env.IMAGE_TAG }}
+
+      - name: Build and Push Frontend Image
+        run: |
+          docker build -t ${{ secrets.ECR_FRONTEND_REPO }}:${{ env.IMAGE_TAG }} ./frontend
+          docker push ${{ secrets.ECR_FRONTEND_REPO }}:${{ env.IMAGE_TAG }}
+
+  deploy:
+    name: Deploy to EKS
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Add Symantec WSS Root CA
+        run: |
+          echo "${{ secrets.SYMANTEC_WSS_CERT }}" > /usr/local/share/ca-certificates/symantec_wss.pem
+          sudo cp /usr/local/share/ca-certificates/symantec_wss.pem /usr/local/share/ca-certificates/
+          sudo update-ca-certificates
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/github-oidc-deploy-role
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get EKS Cluster Name and Setup Kubeconfig
+        run: |
+          CLUSTER_NAME=$(aws eks list-clusters --region $AWS_REGION --query "clusters[0]" --output text)
+          echo "CLUSTER_NAME=$CLUSTER_NAME" >> $GITHUB_ENV
+          aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
+
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+
+      - name: Replace image tag in manifests
+        run: | 
+          sed -i "s|weather-repo-frontend-app*|weather-repo-frontend-app:${{ env.IMAGE_TAG }}|" ./terraform/kubernetes/frontend.yaml
+          sed -i "s|weather-repo-backend-api*|weather-repo-backend-api:${{ env.IMAGE_TAG }}|" ./terraform/kubernetes/backend.yaml
+    
+      - name: Debug manifest
+        run: |
+          cat ./terraform/kubernetes/backend.yaml
+          cat ./terraform/kubernetes/frontend.yaml
+
+      - name: Validate Kubernetes YAMLs
+        run: |
+          kubectl apply --dry-run=client -f ./terraform/kubernetes/backend.yaml
+          kubectl apply --dry-run=client -f ./terraform/kubernetes/frontend.yaml
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f ./terraform/kubernetes/backend.yaml
+          kubectl apply -f ./terraform/kubernetes/frontend.yaml
