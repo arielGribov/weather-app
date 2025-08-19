@@ -37,6 +37,7 @@ metadata:
   name: symantec-ca
 data:
   symantec_wss_ca.pem: |
+    __SYMANTEC_WSS_CERT__
 ---
 apiVersion: apps/v1
 kind: Deployment

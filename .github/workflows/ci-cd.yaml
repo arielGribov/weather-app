@@ -269,7 +269,9 @@ jobs:
           
       - name: Create symantec-ca ConfigMap
         run: |
-          kubectl create configmap symantec-ca --from-literal="symantec_wss_ca.pem=${{ secrets.SYMANTEC_WSS_CERT }}" -o yaml --dry-run=client | kubectl apply -f -
+          # kubectl create configmap symantec-ca --from-literal="symantec_wss_ca.pem=${{ secrets.SYMANTEC_WSS_CERT }}" -o yaml --dry-run=client | kubectl apply -f -
+          sed -i "s|__SYMANTEC_WSS_CERT__|${{ secrets.SYMANTEC_WSS_CERT }}|" ./terraform/kubernetes/backend.yaml
+
 
       - name: Debug manifest
         run: |
