@@ -25,19 +25,11 @@ server:
 grafana:
   enabled: true
   adminUser: admin
-  adminPassword: "ChangeMe123!" # Change for production to secret or SSM/KMS
+  adminPassword: "ChangeMe123!" 
   service:
     type: LoadBalancer
   ingress:
     enabled: false
-    # To enable ingress with ALB or NGINX, uncomment and configure below
-    # ingressClassName: alb
-    # annotations:
-    #   kubernetes.io/ingress.class: alb
-    #   alb.ingress.kubernetes.io/scheme: internet-facing
-    #   alb.ingress.kubernetes.io/target-type: ip
-    # hosts:
-    #   - grafana.example.com
 
 nodeExporter:
   enabled: true

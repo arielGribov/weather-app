@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: 205930636266.dkr.ecr.us-east-1.amazonaws.com/weather-repo-frontend-app:20250819-2aaae41
+          image: 205930636266.dkr.ecr.us-east-1.amazonaws.com/weather-repo-frontend-app:20250819-1407c08
           ports:
             - containerPort: 80
           env:
