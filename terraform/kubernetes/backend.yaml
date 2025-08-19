@@ -1,65 +1,3 @@
-# apiVersion: apps/v1
-# kind: Deployment
-# metadata:
-#   name: backend
-# spec:
-#   replicas: 1
-#   selector:
-#     matchLabels:
-#       app: backend
-#   template:
-#     metadata:
-#       labels:
-#         app: backend
-#     spec:
-#       containers:
-#         - name: backend
-#           image: 205930636266.dkr.ecr.us-east-1.amazonaws.com/weather-repo-backend-api
-#           ports:
-#             - containerPort: 8000
-# ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: backend
-# spec:
-#   selector:
-#     app: backend
-#   ports:
-#     - port: 8000
-#       targetPort: 8000
-#   type: ClusterIP
-
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: symantec-ca
-data:
-  symantec_wss_ca.pem: |
-    -----BEGIN CERTIFICATE-----
-    MIIDkjCCAnqgAwIBAgIQYh7PD8WR0TDUDVENFkFmfDANBgkqhkiG9w0BAQsFADBP
-    MQswCQYDVQQGEwJVUzEfMB0GA1UEChMWQmx1ZUNvYXQgU3lzdGVtcywgSW5jLjEf
-    MB0GA1UEAxMWQ2xvdWQgU2VydmljZXMgUm9vdCBDQTAeFw0xMTA5MDYwMDAwMDBa
-    Fw0zNjA5MDUyMzU5NTlaME8xCzAJBgNVBAYTAlVTMR8wHQYDVQQKExZCbHVlQ29h
-    dCBTeXN0ZW1zLCBJbmMuMR8wHQYDVQQDExZDbG91ZCBTZXJ2aWNlcyBSb290IENB
-    MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxAB79qIpN0NApUS0be0N
-    FYDqnY3g9jJsYZ6HVRsbw2eJnO2BKYhoBOW5fmUc9FaT0VbhIokHFRj4w3c2keWV
-    gTlFHbp6EZaaK1H8yczTf57WlXILuCrJ9eGYsWE2doJePnFpT1QejDRQYMKTjAfQ
-    A0twCBSxxmZ5TzEJ/xAu4cYTc3CnMrgA3n+/tcH7Yn5PDNGAiwZMWf5OPbktH33b
-    2r7yex+bgXXivY1Mw6k82RYLTLRsa8AoluBDTplqMbHo1QE7AuveeFkLL5GXX/8U
-    xao0mBvud2NJCHTZ9EcyHn5/Y2gnqJW4tmbMNXrrhAE+5Y1dWMAU8QFSF0aszQQE
-    2wIDAQABo2owaDAOBgNVHQ8BAf8EBAMCAQYwDwYDVR0TAQH/BAUwAwEB/zAmBgNV
-    HREEHzAdpBswGTEXMBUGA1UEAxMOTVBLSS0yMDQ4LTEtOTkwHQYDVR0OBBYEFKZK
-    F9G8WLV3JRaSK9JMlSPPKBQ2MA0GCSqGSIb3DQEBCwUAA4IBAQCJszHQDBq6Flgo
-    NRcgmgfn8LvyT1kWmBvM5UdZbPJwquKt4eqz67lXKzEnIUcWwdnJnkt0gmzXLw0z
-    N5jwISiDbV5iGuJp6x+ftwwvHf9WxqM/aF9xQ9V5767GP4HCz0XfVcx0A1h+nJnh
-    2suSISN6rPFhIhC5r/hbmBzzs/mjj60wFACDoP13Q2U3D+Jwm3Gf+LjQNHfLfPcB
-    rJx9hKP8MJEDYPjHyLZTPd9keF3YfG5JevANWIK+4gzgbeVaLEV9/yXWRNEYxYhC
-    y1nLwUcano2K8mgWkbUHctv7xw/SGymDCIrDnkHBrHqQ59YEfXWBZlLR0gyY56S1
-    X7G8bD+o
-    -----END CERTIFICATE-----
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -79,21 +17,6 @@ spec:
           image: 205930636266.dkr.ecr.us-east-1.amazonaws.com/weather-repo-backend-api
           ports:
             - containerPort: 8000
-          volumeMounts:
-            - name: custom-ca
-              mountPath: /etc/ssl/certs/symantec_wss_ca.pem
-              subPath: symantec_wss_ca.pem
-          env:
-            - name: REQUESTS_CA_BUNDLE
-              value: /etc/ssl/certs/symantec_wss_ca.pem
-            - name: SSL_CERT_FILE
-              value: /etc/ssl/certs/symantec_wss_ca.pem
-            - name: HTTPLIB2_CA_CERTS
-              value: /etc/ssl/certs/symantec_wss_ca.pem
-      volumes:
-        - name: custom-ca
-          configMap:
-            name: symantec-ca
 ---
 apiVersion: v1
 kind: Service
@@ -106,3 +29,80 @@ spec:
     - port: 8000
       targetPort: 8000
   type: ClusterIP
+
+# ---
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: symantec-ca
+# data:
+#   symantec_wss_ca.pem: |
+#     -----BEGIN CERTIFICATE-----
+#     MIIDkjCCAnqgAwIBAgIQYh7PD8WR0TDUDVENFkFmfDANBgkqhkiG9w0BAQsFADBP
+#     MQswCQYDVQQGEwJVUzEfMB0GA1UEChMWQmx1ZUNvYXQgU3lzdGVtcywgSW5jLjEf
+#     MB0GA1UEAxMWQ2xvdWQgU2VydmljZXMgUm9vdCBDQTAeFw0xMTA5MDYwMDAwMDBa
+#     Fw0zNjA5MDUyMzU5NTlaME8xCzAJBgNVBAYTAlVTMR8wHQYDVQQKExZCbHVlQ29h
+#     dCBTeXN0ZW1zLCBJbmMuMR8wHQYDVQQDExZDbG91ZCBTZXJ2aWNlcyBSb290IENB
+#     MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxAB79qIpN0NApUS0be0N
+#     FYDqnY3g9jJsYZ6HVRsbw2eJnO2BKYhoBOW5fmUc9FaT0VbhIokHFRj4w3c2keWV
+#     gTlFHbp6EZaaK1H8yczTf57WlXILuCrJ9eGYsWE2doJePnFpT1QejDRQYMKTjAfQ
+#     A0twCBSxxmZ5TzEJ/xAu4cYTc3CnMrgA3n+/tcH7Yn5PDNGAiwZMWf5OPbktH33b
+#     2r7yex+bgXXivY1Mw6k82RYLTLRsa8AoluBDTplqMbHo1QE7AuveeFkLL5GXX/8U
+#     xao0mBvud2NJCHTZ9EcyHn5/Y2gnqJW4tmbMNXrrhAE+5Y1dWMAU8QFSF0aszQQE
+#     2wIDAQABo2owaDAOBgNVHQ8BAf8EBAMCAQYwDwYDVR0TAQH/BAUwAwEB/zAmBgNV
+#     HREEHzAdpBswGTEXMBUGA1UEAxMOTVBLSS0yMDQ4LTEtOTkwHQYDVR0OBBYEFKZK
+#     F9G8WLV3JRaSK9JMlSPPKBQ2MA0GCSqGSIb3DQEBCwUAA4IBAQCJszHQDBq6Flgo
+#     NRcgmgfn8LvyT1kWmBvM5UdZbPJwquKt4eqz67lXKzEnIUcWwdnJnkt0gmzXLw0z
+#     N5jwISiDbV5iGuJp6x+ftwwvHf9WxqM/aF9xQ9V5767GP4HCz0XfVcx0A1h+nJnh
+#     2suSISN6rPFhIhC5r/hbmBzzs/mjj60wFACDoP13Q2U3D+Jwm3Gf+LjQNHfLfPcB
+#     rJx9hKP8MJEDYPjHyLZTPd9keF3YfG5JevANWIK+4gzgbeVaLEV9/yXWRNEYxYhC
+#     y1nLwUcano2K8mgWkbUHctv7xw/SGymDCIrDnkHBrHqQ59YEfXWBZlLR0gyY56S1
+#     X7G8bD+o
+#     -----END CERTIFICATE-----
+# ---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: backend
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: backend
+#   template:
+#     metadata:
+#       labels:
+#         app: backend
+#     spec:
+#       containers:
+#         - name: backend
+#           image: 205930636266.dkr.ecr.us-east-1.amazonaws.com/weather-repo-backend-api
+#           ports:
+#             - containerPort: 8000
+#           volumeMounts:
+#             - name: custom-ca
+#               mountPath: /etc/ssl/certs/symantec_wss_ca.pem
+#               subPath: symantec_wss_ca.pem
+#           env:
+#             - name: REQUESTS_CA_BUNDLE
+#               value: /etc/ssl/certs/symantec_wss_ca.pem
+#             - name: SSL_CERT_FILE
+#               value: /etc/ssl/certs/symantec_wss_ca.pem
+#             - name: HTTPLIB2_CA_CERTS
+#               value: /etc/ssl/certs/symantec_wss_ca.pem
+#       volumes:
+#         - name: custom-ca
+#           configMap:
+#             name: symantec-ca
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: backend
+# spec:
+#   selector:
+#     app: backend
+#   ports:
+#     - port: 8000
+#       targetPort: 8000
+#   type: ClusterIP

@@ -1,12 +1,12 @@
 
 data "aws_eks_cluster" "eks_id" {
   depends_on = [module.eks]
-  name = module.eks.cluster_name
+  name       = module.eks.cluster_name
 }
 
 data "aws_eks_cluster_auth" "eks_auth" {
   depends_on = [module.eks]
-  name = module.eks.cluster_name
+  name       = module.eks.cluster_name
 }
 
 

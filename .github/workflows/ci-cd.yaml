@@ -270,7 +270,11 @@ jobs:
       # - name: Create symantec-ca ConfigMap
       #   run: |
       #     sed -i "s|__SYMANTEC_WSS_CERT__|${{ secrets.SYMANTEC_WSS_CERT }}|" ./terraform/kubernetes/backend.yaml
-
+      - name: Install Symantec CA
+        run: |
+          sudo mkdir -p /usr/local/share/ca-certificates/extra
+          echo "${{ secrets.SYMANTEC_WSS_CERT }}" | sudo tee /usr/local/share/ca-certificates/extra/symantec.crt
+          sudo update-ca-certificates
 
       - name: Debug manifest
         run: |
