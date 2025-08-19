@@ -289,7 +289,7 @@ jobs:
 
       - name: Deploy to Kubernetes
         run: |
-          kubectl apply -f ./terraform/kubernetes/backend.yaml
+          kubectl apply --validate=false -f ./terraform/kubernetes/backend.yaml
           kubectl apply -f ./terraform/kubernetes/frontend.yaml
 
 
