@@ -266,6 +266,10 @@ jobs:
         run: | 
           sed -i "s|weather-repo-frontend-app*|weather-repo-frontend-app:${{ env.IMAGE_TAG }}|" ./terraform/kubernetes/frontend.yaml
           sed -i "s|weather-repo-backend-api*|weather-repo-backend-api:${{ env.IMAGE_TAG }}|" ./terraform/kubernetes/backend.yaml
+          
+      - name: Create symantec-ca ConfigMap
+        run: |
+          kubectl create configmap symantec-ca --from-literal="symantec_wss_ca.pem=${{ secrets.SYMANTEC_WSS_CERT }}" -o yaml --dry-run=client | kubectl apply -f -
 
       - name: Debug manifest
         run: |
