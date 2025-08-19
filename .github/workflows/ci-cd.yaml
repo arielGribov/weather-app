@@ -267,9 +267,9 @@ jobs:
           sed -i "s|weather-repo-frontend-app*|weather-repo-frontend-app:${{ env.IMAGE_TAG }}|" ./terraform/kubernetes/frontend.yaml
           sed -i "s|weather-repo-backend-api*|weather-repo-backend-api:${{ env.IMAGE_TAG }}|" ./terraform/kubernetes/backend.yaml
           
-      - name: Create symantec-ca ConfigMap
-        run: |
-          sed -i "s|__SYMANTEC_WSS_CERT__|${{ secrets.SYMANTEC_WSS_CERT }}|" ./terraform/kubernetes/backend.yaml
+      # - name: Create symantec-ca ConfigMap
+      #   run: |
+      #     sed -i "s|__SYMANTEC_WSS_CERT__|${{ secrets.SYMANTEC_WSS_CERT }}|" ./terraform/kubernetes/backend.yaml
 
 
       - name: Debug manifest
