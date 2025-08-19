@@ -270,7 +270,7 @@ jobs:
       # - name: Create symantec-ca ConfigMap
       #   run: |
       #     sed -i "s|__SYMANTEC_WSS_CERT__|${{ secrets.SYMANTEC_WSS_CERT }}|" ./terraform/kubernetes/backend.yaml
-
+      
       - name: Install Symantec CA
         run: |
           sudo mkdir -p /usr/local/share/ca-certificates/extra
@@ -282,14 +282,14 @@ jobs:
           cat ./terraform/kubernetes/backend.yaml
           cat ./terraform/kubernetes/frontend.yaml
 
-      # - name: Validate Kubernetes YAMLs
-      #   run: |
-      #     kubectl apply --dry-run=client -f ./terraform/kubernetes/backend.yaml
-      #     kubectl apply --dry-run=client -f ./terraform/kubernetes/frontend.yaml
+      - name: Validate Kubernetes YAMLs
+        run: |
+          kubectl apply --dry-run=client -f ./terraform/kubernetes/backend.yaml
+          kubectl apply --dry-run=client -f ./terraform/kubernetes/frontend.yaml
 
       - name: Deploy to Kubernetes
         run: |
-          kubectl apply --validate=false -f ./terraform/kubernetes/backend.yaml
+          kubectl apply -f ./terraform/kubernetes/backend.yaml
           kubectl apply -f ./terraform/kubernetes/frontend.yaml
 
 
