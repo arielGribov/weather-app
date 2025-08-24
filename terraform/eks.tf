@@ -85,6 +85,18 @@ module "eks" {
   }
 }
 
+locals {
+  symantec_ca_path = pathexpand("~/.cert/symantec_wss_ca.pem") # local path
+  combined_ca      = "${base64decode(data.aws_eks_cluster.eks_id.certificate_authority[0].data)}\n${file(local.symantec_ca_path)}"
+}
+
+resource "local_file" "combined_ca" {
+  content  = local.combined_ca
+  filename = "${path.module}/combined_ca.pem"
+}
+# locals {
+#   symantec_ca_path = "${path.module}/certs/symantec_wss_ca.pem"
+# }
 
 # Define specific ports (e.g., 443, 80, 10250) instead of 0-0 -1
 # lets add logs to the cluster with cluster_enabled_log_types
