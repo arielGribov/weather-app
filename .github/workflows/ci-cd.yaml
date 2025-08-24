@@ -300,7 +300,7 @@
 
 name: CI/CD Pipeline
 
-on:  
+on:
   workflow_dispatch:
   push:
     branches: '**'
