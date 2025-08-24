@@ -300,7 +300,7 @@
 
 name: CI/CD Pipeline
 
-on:
+on:  
   workflow_dispatch:
   push:
     branches: '**'
@@ -308,8 +308,8 @@ on:
 env:
   AWS_REGION: us-east-1
   AWS_ACCOUNT_ID: 205930636266
-  ECR_REPO_FRONTEND: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/weather-repo-frontend-app
-  ECR_REPO_BACKEND: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/weather-repo-backend-api
+  ECR_REPO_FRONTEND: 205930636266.dkr.ecr.us-east-1.amazonaws.com/weather-repo-frontend-app
+  ECR_REPO_BACKEND: 205930636266.dkr.ecr.us-east-1.amazonaws.com/weather-repo-backend-api
 
 permissions:
   id-token: write
