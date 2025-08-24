@@ -394,8 +394,8 @@ jobs:
 
       - name: Terraform Init
         run: terraform init -input=false
-        working-directory: ./terraform
+        working-directory: /Users/arielgribov/Documents/projects/weather-app/terraform
 
       - name: Terraform Apply
         run: terraform apply -auto-approve -input=false -var="image_tag=${{ env.IMAGE_TAG }}"
-        working-directory: ./terraform
+        working-directory: /Users/arielgribov/Documents/projects/weather-app/terraform
