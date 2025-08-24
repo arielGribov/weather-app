@@ -308,6 +308,7 @@ on:
 env:
   AWS_REGION: us-east-1
   AWS_ACCOUNT_ID: 205930636266
+  IMAGE_TAG: $(date +%Y%m%d)-${GITHUB_SHA::7}
   ECR_REPO_FRONTEND: 205930636266.dkr.ecr.us-east-1.amazonaws.com/weather-repo-frontend-app
   ECR_REPO_BACKEND: 205930636266.dkr.ecr.us-east-1.amazonaws.com/weather-repo-backend-api
 
@@ -329,24 +330,31 @@ jobs:
           role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/github-oidc-deploy-role
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Login to Amazon ECR
+      - name: Build Backend Image
         run: |
-          aws ecr get-login-password --region $AWS_REGION \
-            | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+          docker build -t ${{ secrets.ECR_BACKEND_REPO }}:${{ env.IMAGE_TAG }} ./backend
 
-      - name: Build and push Docker images
+      - name: ECR Login Backend
         run: |
-          TAG=$(date +%Y%m%d)-${GITHUB_SHA::7}
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | \
+          docker login --username AWS --password-stdin ${{ secrets.ECR_BACKEND_REPO }}
 
-          # Build & push frontend
-          docker build -t $ECR_REPO_FRONTEND:$TAG ./frontend
-          docker push $ECR_REPO_FRONTEND:$TAG
+      - name: Push Backend Image
+        run: |
+          docker push ${{ secrets.ECR_BACKEND_REPO }}:${{ env.IMAGE_TAG }}
 
-          # Build & push backend
-          docker build -t $ECR_REPO_BACKEND:$TAG ./backend
-          docker push $ECR_REPO_BACKEND:$TAG
+      - name: Build Frontend Image
+        run: |
+          docker build -t ${{ secrets.ECR_FRONTEND_REPO }}:${{ env.IMAGE_TAG }} ./frontend
 
-          echo "IMAGE_TAG=$TAG" >> $GITHUB_ENV
+      - name: ECR Login Frontend
+        run: |
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | \
+          docker login --username AWS --password-stdin ${{ secrets.ECR_FRONTEND_REPO }}
+
+      - name: Push Frontend Image
+        run: |
+          docker push ${{ secrets.ECR_FRONTEND_REPO }}:${{ env.IMAGE_TAG }}
 
   deploy:
     name: Deploy to EKS
@@ -389,5 +397,5 @@ jobs:
         working-directory: ./terraform
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve -input=false
+        run: terraform apply -auto-approve -input=false -var="image_tag=${{ env.IMAGE_TAG }}"
         working-directory: ./terraform
