@@ -1,4 +1,4 @@
-# LETS ADD TO THE CLUSER METRICS AND LOGS - PROMETHUOS and grafana AND ELSTIC (ELK) - USE HELM CHART / CRD TO INSTALL THEM
+# LETS ADD TO THE CLUSER METRICS AND LOGS - PROMETHUOS and grafana AND ELSTIC (ELK) - USE HELM CHART / CRD TO INSTALL THEM - check
 # LETS USE ANSIBLE TO INSTALL ALL THE RESOURCES IN THE cluster
 # LETS ADD R53 WITH DOMAINS
 # DOCKER IMAGE TAGS
@@ -8,7 +8,7 @@
 
 
 
-# lets add HPA to the backend and the rontend
-# lets add selector and affinity to the backend and the rontend
+# lets add HPA to the backend and the frontend
+# lets add selector and affinity to the backend and the frontend
 # lets put rolling update policie
 # lets create a cronjob in k8s that every hour say hello word

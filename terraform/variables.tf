@@ -59,3 +59,8 @@ variable "github_repo" {
   description = "GitHub repository"
   default     = "weather-app"
 }
+
+variable "image_tag" {
+  type        = string
+  description = "Docker image tag for both frontend & backend apps"
+}
