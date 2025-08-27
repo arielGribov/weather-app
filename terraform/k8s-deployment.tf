@@ -25,7 +25,7 @@ resource "kubernetes_deployment" "frontend" {
       spec {
         container {
           name  = "frontend"
-          image = "${var.account_id}.dkr.ecr.us-east-1.amazonaws.com/weather-repo-frontend-app:${var.image_tag}"
+          image = "${var.account_id}.dkr.ecr.${var.region}.amazonaws.com/weather-repo-frontend-app:${var.image_tag}"
 
           port {
             container_port = 80
@@ -85,7 +85,7 @@ resource "kubernetes_deployment" "backend" {
       spec {
         container {
           name  = "backend"
-          image = "${var.account_id}.dkr.ecr.us-east-1.amazonaws.com/weather-repo-backend-api:${var.image_tag}"
+          image = "${var.account_id}.dkr.ecr.${var.region}.amazonaws.com/weather-repo-backend-api:${var.image_tag}"
 
           port {
             container_port = 8000
