@@ -150,167 +150,17 @@
 
 
 
-# name: CI/CD Pipeline
-
-# on:
-#   workflow_dispatch:
-#   push:
-#     branches: '**'
-
-# env:
-#   AWS_REGION: ${{ secrets.AWS_REGION }}
-#   IMAGE_TAG: $(date +%Y%m%d)-${GITHUB_SHA::7}
-#   AWS_ACCOUNT: '205930636266'
-
-# permissions:
-#   id-token: write
-#   contents: read
-
-# jobs:
-#   build-and-push:
-#     name: Build and Push Docker Images
-#     runs-on: ubuntu-latest
-
-#     steps:
-#       - name: Checkout repository
-#         uses: actions/checkout@v4
-
-#       - name: Install certifi & add Symantec WSS CA
-#         run: |
-#           python3 -m pip install --upgrade certifi
-#           mkdir -p $HOME/.cert
-#           cat > $HOME/.cert/symantec_wss_ca.pem <<'EOF'
-#           ${{ secrets.SYMANTEC_WSS_CERT }}
-#           EOF
-#           python3 -c "import certifi, os; open(certifi.where(),'ab').write(open(os.path.join(os.environ['HOME'],'.cert','symantec_wss_ca.pem'),'rb').read())"
-#         shell: bash
-
-#       - name: Configure AWS credentials via OIDC
-#         uses: aws-actions/configure-aws-credentials@v4
-#         with:
-#           role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/github-oidc-deploy-role
-#           aws-region: ${{ env.AWS_REGION }}
-
-#       - name: Set Python certifi env vars
-#         run: |
-#           echo "REQUESTS_CA_BUNDLE=$(python3 -m certifi)" >> $GITHUB_ENV
-#           echo "SSL_CERT_FILE=$(python3 -m certifi)" >> $GITHUB_ENV
-#           echo "HTTPLIB2_CA_CERTS=$(python3 -m certifi)" >> $GITHUB_ENV
-
-#       - name: Build Backend Image
-#         run: |
-#           docker build -t ${{ secrets.ECR_BACKEND_REPO }}:${{ env.IMAGE_TAG }} ./backend
-
-#       - name: ECR Login Backend
-#         run: |
-#           aws ecr get-login-password --region ${{ env.AWS_REGION }} | \
-#           docker login --username AWS --password-stdin ${{ secrets.ECR_BACKEND_REPO }}
-
-#       - name: Push Backend Image
-#         run: |
-#           docker push ${{ secrets.ECR_BACKEND_REPO }}:${{ env.IMAGE_TAG }}
-
-#       - name: Build Frontend Image
-#         run: |
-#           docker build -t ${{ secrets.ECR_FRONTEND_REPO }}:${{ env.IMAGE_TAG }} ./frontend
-
-#       - name: ECR Login Frontend
-#         run: |
-#           aws ecr get-login-password --region ${{ env.AWS_REGION }} | \
-#           docker login --username AWS --password-stdin ${{ secrets.ECR_FRONTEND_REPO }}
-
-#       - name: Push Frontend Image
-#         run: |
-#           docker push ${{ secrets.ECR_FRONTEND_REPO }}:${{ env.IMAGE_TAG }}
-
-#   deploy:
-#     name: Deploy to EKS
-#     needs: build-and-push
-#     runs-on: ubuntu-latest
-
-#     steps:
-#       - name: Checkout repository
-#         uses: actions/checkout@v4
-
-#       - name: Install certifi & add Symantec WSS CA
-#         run: |
-#           python3 -m pip install --upgrade certifi
-#           mkdir -p $HOME/.cert
-#           cat > $HOME/.cert/symantec_wss_ca.pem <<'EOF'
-#           ${{ secrets.SYMANTEC_WSS_CERT }}
-#           EOF
-#           python3 -c "import certifi, os; open(certifi.where(),'ab').write(open(os.path.join(os.environ['HOME'],'.cert','symantec_wss_ca.pem'),'rb').read())"
-#         shell: bash
-
-#       - name: Configure AWS credentials via OIDC
-#         uses: aws-actions/configure-aws-credentials@v4
-#         with:
-#           role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/github-oidc-deploy-role
-#           aws-region: ${{ env.AWS_REGION }}
-
-#       - name: Set Python certifi env vars
-#         run: |
-#           echo "REQUESTS_CA_BUNDLE=$(python3 -m certifi)" >> $GITHUB_ENV
-#           echo "SSL_CERT_FILE=$(python3 -m certifi)" >> $GITHUB_ENV
-#           echo "HTTPLIB2_CA_CERTS=$(python3 -m certifi)" >> $GITHUB_ENV
-
-#       - name: Get EKS Cluster Name and Setup Kubeconfig
-#         run: |
-#           CLUSTER_NAME=$(aws eks list-clusters --region $AWS_REGION --query "clusters[0]" --output text)
-#           echo "CLUSTER_NAME=$CLUSTER_NAME" >> $GITHUB_ENV
-#           aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
-#         env:
-#           AWS_REGION: ${{ secrets.AWS_REGION }}
-
-#       - name: Replace image tag in manifests
-#         run: | 
-#           sed -i "s|weather-repo-frontend-app*|weather-repo-frontend-app:${{ env.IMAGE_TAG }}|" ./terraform/kubernetes/frontend.yaml
-#           sed -i "s|weather-repo-backend-api*|weather-repo-backend-api:${{ env.IMAGE_TAG }}|" ./terraform/kubernetes/backend.yaml
-          
-#       # - name: Create symantec-ca ConfigMap
-#       #   run: |
-#       #     sed -i "s|__SYMANTEC_WSS_CERT__|${{ secrets.SYMANTEC_WSS_CERT }}|" ./terraform/kubernetes/backend.yaml
-      
-#       # - name: Install Symantec CA
-#       #   run: |
-#       #     sudo mkdir -p /usr/local/share/ca-certificates/extra
-#       #     echo "${{ secrets.SYMANTEC_WSS_CERT }}" | sudo tee /usr/local/share/ca-certificates/extra/symantec.crt
-#       #     sudo update-ca-certificates
-
-#       - name: Write Symantec CA cert to file
-#         run: |
-#           mkdir -p ./terraform/certs
-#           echo "${{ secrets.SYMANTEC_WSS_CERT  }}" > ./terraform/certs/symantec_wss_ca.pem
-
-#       - name: Debug manifest
-#         run: |
-#           cat ./terraform/kubernetes/backend.yaml
-#           cat ./terraform/kubernetes/frontend.yaml
-
-#       - name: Validate Kubernetes YAMLs
-#         run: |
-#           kubectl apply --dry-run=client -f ./terraform/kubernetes/backend.yaml
-#           kubectl apply --dry-run=client -f ./terraform/kubernetes/frontend.yaml
-
-#       - name: Deploy to Kubernetes
-#         run: |
-#           kubectl apply -f ./terraform/kubernetes/backend.yaml
-#           kubectl apply -f ./terraform/kubernetes/frontend.yaml
-
-
 name: CI/CD Pipeline
 
-on:  
+on:
   workflow_dispatch:
   push:
     branches: '**'
 
 env:
-  AWS_REGION: us-east-1
-  AWS_ACCOUNT_ID: 205930636266
+  AWS_REGION: ${{ secrets.AWS_REGION }}
   IMAGE_TAG: $(date +%Y%m%d)-${GITHUB_SHA::7}
-  ECR_REPO_FRONTEND: 205930636266.dkr.ecr.us-east-1.amazonaws.com/weather-repo-frontend-app
-  ECR_REPO_BACKEND: 205930636266.dkr.ecr.us-east-1.amazonaws.com/weather-repo-backend-api
+  AWS_ACCOUNT: '205930636266'
 
 permissions:
   id-token: write
@@ -318,17 +168,34 @@ permissions:
 
 jobs:
   build-and-push:
+    name: Build and Push Docker Images
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install certifi & add Symantec WSS CA
+        run: |
+          python3 -m pip install --upgrade certifi
+          mkdir -p $HOME/.cert
+          cat > $HOME/.cert/symantec_wss_ca.pem <<'EOF'
+          ${{ secrets.SYMANTEC_WSS_CERT }}
+          EOF
+          python3 -c "import certifi, os; open(certifi.where(),'ab').write(open(os.path.join(os.environ['HOME'],'.cert','symantec_wss_ca.pem'),'rb').read())"
+        shell: bash
+
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/github-oidc-deploy-role
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/github-oidc-deploy-role
           aws-region: ${{ env.AWS_REGION }}
+
+      - name: Set Python certifi env vars
+        run: |
+          echo "REQUESTS_CA_BUNDLE=$(python3 -m certifi)" >> $GITHUB_ENV
+          echo "SSL_CERT_FILE=$(python3 -m certifi)" >> $GITHUB_ENV
+          echo "HTTPLIB2_CA_CERTS=$(python3 -m certifi)" >> $GITHUB_ENV
 
       - name: Build Backend Image
         run: |
@@ -359,43 +226,77 @@ jobs:
   deploy:
     name: Deploy to EKS
     needs: build-and-push
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.10.5   
-
-      # - name: Install certifi & add Symantec WSS CA
-      #   run: |
-      #     python3 -m pip install --upgrade certifi
-      #     mkdir -p $HOME/.cert
-      #     cat > $HOME/.cert/symantec_wss_ca.pem <<'EOF'
-      #     ${{ secrets.SYMANTEC_WSS_CERT }}
-      #     EOF
-      #     python3 -c "import certifi, os; open(certifi.where(),'ab').write(open(os.path.join(os.environ['HOME'],'.cert','symantec_wss_ca.pem'),'rb').read())"
-      #   shell: bash
+      - name: Install certifi & add Symantec WSS CA
+        run: |
+          python3 -m pip install --upgrade certifi
+          mkdir -p $HOME/.cert
+          cat > $HOME/.cert/symantec_wss_ca.pem <<'EOF'
+          ${{ secrets.SYMANTEC_WSS_CERT }}
+          EOF
+          python3 -c "import certifi, os; open(certifi.where(),'ab').write(open(os.path.join(os.environ['HOME'],'.cert','symantec_wss_ca.pem'),'rb').read())"
+        shell: bash
 
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/github-oidc-deploy-role
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/github-oidc-deploy-role
           aws-region: ${{ env.AWS_REGION }}
 
-      # - name: Set Python certifi env vars
+      - name: Set Python certifi env vars
+        run: |
+          echo "REQUESTS_CA_BUNDLE=$(python3 -m certifi)" >> $GITHUB_ENV
+          echo "SSL_CERT_FILE=$(python3 -m certifi)" >> $GITHUB_ENV
+          echo "HTTPLIB2_CA_CERTS=$(python3 -m certifi)" >> $GITHUB_ENV
+
+      - name: Get EKS Cluster Name and Setup Kubeconfig
+        run: |
+          CLUSTER_NAME=$(aws eks list-clusters --region $AWS_REGION --query "clusters[0]" --output text)
+          echo "CLUSTER_NAME=$CLUSTER_NAME" >> $GITHUB_ENV
+          aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+
+      - name: Replace image tag in manifests
+        run: | 
+          sed -i "s|weather-repo-frontend-app*|weather-repo-frontend-app:${{ env.IMAGE_TAG }}|" ./terraform/kubernetes/frontend.yaml
+          sed -i "s|weather-repo-backend-api*|weather-repo-backend-api:${{ env.IMAGE_TAG }}|" ./terraform/kubernetes/backend.yaml
+          
+      # - name: Create symantec-ca ConfigMap
       #   run: |
-      #     echo "REQUESTS_CA_BUNDLE=$(python3 -m certifi)" >> $GITHUB_ENV
-      #     echo "SSL_CERT_FILE=$(python3 -m certifi)" >> $GITHUB_ENV
-      #     echo "HTTPLIB2_CA_CERTS=$(python3 -m certifi)" >> $GITHUB_ENV
+      #     sed -i "s|__SYMANTEC_WSS_CERT__|${{ secrets.SYMANTEC_WSS_CERT }}|" ./terraform/kubernetes/backend.yaml
+      
+      # - name: Install Symantec CA
+      #   run: |
+      #     sudo mkdir -p /usr/local/share/ca-certificates/extra
+      #     echo "${{ secrets.SYMANTEC_WSS_CERT }}" | sudo tee /usr/local/share/ca-certificates/extra/symantec.crt
+      #     sudo update-ca-certificates
 
-      - name: Terraform Init
-        run: terraform init -input=false
-        working-directory: /Users/arielgribov/Documents/projects/weather-app/terraform
+      - name: Write Symantec CA cert to file
+        run: |
+          mkdir -p ./terraform/certs
+          echo "${{ secrets.SYMANTEC_WSS_CERT  }}" > ./terraform/certs/symantec_wss_ca.pem
 
-      - name: Terraform Apply
-        run: terraform apply -auto-approve -input=false -var="image_tag=${{ env.IMAGE_TAG }}"
-        working-directory: /Users/arielgribov/Documents/projects/weather-app/terraform
+      - name: Debug manifest
+        run: |
+          cat ./terraform/kubernetes/backend.yaml
+          cat ./terraform/kubernetes/frontend.yaml
+
+      - name: Validate Kubernetes YAMLs
+        run: |
+          kubectl apply --dry-run=client -f ./terraform/kubernetes/backend.yaml
+          kubectl apply --dry-run=client -f ./terraform/kubernetes/frontend.yaml
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f ./terraform/kubernetes/backend.yaml
+          kubectl apply -f ./terraform/kubernetes/frontend.yaml
+
+
+        
+          
