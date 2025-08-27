@@ -113,9 +113,9 @@ resource "kubernetes_service" "backend" {
     type = "ClusterIP"
   }
 }
-resource "kubernetes_horizontal_pod_autoscaler_v2" "frontend_hpa" {
+resource "kubernetes_horizontal_pod_autoscaler_v2" "backend_hpa" {
   metadata {
-    name      = "frontend-hpa"
+    name      = "backend-hpa"
     namespace = "default"
   }
 
@@ -123,7 +123,7 @@ resource "kubernetes_horizontal_pod_autoscaler_v2" "frontend_hpa" {
     scale_target_ref {
       api_version = "apps/v1"
       kind        = "Deployment"
-      name        = kubernetes_deployment.frontend.metadata[0].name
+      name        = kubernetes_deployment.backend.metadata[0].name
     }
 
     min_replicas = 2

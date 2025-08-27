@@ -223,79 +223,79 @@ jobs:
         run: |
           docker push ${{ secrets.ECR_FRONTEND_REPO }}:${{ env.IMAGE_TAG }}
 
-  deploy:
-    name: Deploy to EKS
-    needs: build-and-push
-    runs-on: ubuntu-latest
+  # deploy:
+  #   name: Deploy to EKS
+  #   needs: build-and-push
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
 
-      - name: Install certifi & add Symantec WSS CA
-        run: |
-          python3 -m pip install --upgrade certifi
-          mkdir -p $HOME/.cert
-          cat > $HOME/.cert/symantec_wss_ca.pem <<'EOF'
-          ${{ secrets.SYMANTEC_WSS_CERT }}
-          EOF
-          python3 -c "import certifi, os; open(certifi.where(),'ab').write(open(os.path.join(os.environ['HOME'],'.cert','symantec_wss_ca.pem'),'rb').read())"
-        shell: bash
+  #     - name: Install certifi & add Symantec WSS CA
+  #       run: |
+  #         python3 -m pip install --upgrade certifi
+  #         mkdir -p $HOME/.cert
+  #         cat > $HOME/.cert/symantec_wss_ca.pem <<'EOF'
+  #         ${{ secrets.SYMANTEC_WSS_CERT }}
+  #         EOF
+  #         python3 -c "import certifi, os; open(certifi.where(),'ab').write(open(os.path.join(os.environ['HOME'],'.cert','symantec_wss_ca.pem'),'rb').read())"
+  #       shell: bash
 
-      - name: Configure AWS credentials via OIDC
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/github-oidc-deploy-role
-          aws-region: ${{ env.AWS_REGION }}
+  #     - name: Configure AWS credentials via OIDC
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/github-oidc-deploy-role
+  #         aws-region: ${{ env.AWS_REGION }}
 
-      - name: Set Python certifi env vars
-        run: |
-          echo "REQUESTS_CA_BUNDLE=$(python3 -m certifi)" >> $GITHUB_ENV
-          echo "SSL_CERT_FILE=$(python3 -m certifi)" >> $GITHUB_ENV
-          echo "HTTPLIB2_CA_CERTS=$(python3 -m certifi)" >> $GITHUB_ENV
+  #     - name: Set Python certifi env vars
+  #       run: |
+  #         echo "REQUESTS_CA_BUNDLE=$(python3 -m certifi)" >> $GITHUB_ENV
+  #         echo "SSL_CERT_FILE=$(python3 -m certifi)" >> $GITHUB_ENV
+  #         echo "HTTPLIB2_CA_CERTS=$(python3 -m certifi)" >> $GITHUB_ENV
 
-      - name: Get EKS Cluster Name and Setup Kubeconfig
-        run: |
-          CLUSTER_NAME=$(aws eks list-clusters --region $AWS_REGION --query "clusters[0]" --output text)
-          echo "CLUSTER_NAME=$CLUSTER_NAME" >> $GITHUB_ENV
-          aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
-        env:
-          AWS_REGION: ${{ secrets.AWS_REGION }}
+  #     - name: Get EKS Cluster Name and Setup Kubeconfig
+  #       run: |
+  #         CLUSTER_NAME=$(aws eks list-clusters --region $AWS_REGION --query "clusters[0]" --output text)
+  #         echo "CLUSTER_NAME=$CLUSTER_NAME" >> $GITHUB_ENV
+  #         aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
+  #       env:
+  #         AWS_REGION: ${{ secrets.AWS_REGION }}
 
-      - name: Replace image tag in manifests
-        run: | 
-          sed -i "s|weather-repo-frontend-app*|weather-repo-frontend-app:${{ env.IMAGE_TAG }}|" ./terraform/kubernetes/frontend.yaml
-          sed -i "s|weather-repo-backend-api*|weather-repo-backend-api:${{ env.IMAGE_TAG }}|" ./terraform/kubernetes/backend.yaml
+  #     - name: Replace image tag in manifests
+  #       run: | 
+  #         sed -i "s|weather-repo-frontend-app*|weather-repo-frontend-app:${{ env.IMAGE_TAG }}|" ./terraform/kubernetes/frontend.yaml
+  #         sed -i "s|weather-repo-backend-api*|weather-repo-backend-api:${{ env.IMAGE_TAG }}|" ./terraform/kubernetes/backend.yaml
           
-      # - name: Create symantec-ca ConfigMap
-      #   run: |
-      #     sed -i "s|__SYMANTEC_WSS_CERT__|${{ secrets.SYMANTEC_WSS_CERT }}|" ./terraform/kubernetes/backend.yaml
+  #     # - name: Create symantec-ca ConfigMap
+  #     #   run: |
+  #     #     sed -i "s|__SYMANTEC_WSS_CERT__|${{ secrets.SYMANTEC_WSS_CERT }}|" ./terraform/kubernetes/backend.yaml
       
-      # - name: Install Symantec CA
-      #   run: |
-      #     sudo mkdir -p /usr/local/share/ca-certificates/extra
-      #     echo "${{ secrets.SYMANTEC_WSS_CERT }}" | sudo tee /usr/local/share/ca-certificates/extra/symantec.crt
-      #     sudo update-ca-certificates
+  #     # - name: Install Symantec CA
+  #     #   run: |
+  #     #     sudo mkdir -p /usr/local/share/ca-certificates/extra
+  #     #     echo "${{ secrets.SYMANTEC_WSS_CERT }}" | sudo tee /usr/local/share/ca-certificates/extra/symantec.crt
+  #     #     sudo update-ca-certificates
 
-      - name: Write Symantec CA cert to file
-        run: |
-          mkdir -p ./terraform/certs
-          echo "${{ secrets.SYMANTEC_WSS_CERT  }}" > ./terraform/certs/symantec_wss_ca.pem
+  #     - name: Write Symantec CA cert to file
+  #       run: |
+  #         mkdir -p ./terraform/certs
+  #         echo "${{ secrets.SYMANTEC_WSS_CERT  }}" > ./terraform/certs/symantec_wss_ca.pem
 
-      - name: Debug manifest
-        run: |
-          cat ./terraform/kubernetes/backend.yaml
-          cat ./terraform/kubernetes/frontend.yaml
+  #     - name: Debug manifest
+  #       run: |
+  #         cat ./terraform/kubernetes/backend.yaml
+  #         cat ./terraform/kubernetes/frontend.yaml
 
-      - name: Validate Kubernetes YAMLs
-        run: |
-          kubectl apply --dry-run=client -f ./terraform/kubernetes/backend.yaml
-          kubectl apply --dry-run=client -f ./terraform/kubernetes/frontend.yaml
+  #     - name: Validate Kubernetes YAMLs
+  #       run: |
+  #         kubectl apply --dry-run=client -f ./terraform/kubernetes/backend.yaml
+  #         kubectl apply --dry-run=client -f ./terraform/kubernetes/frontend.yaml
 
-      - name: Deploy to Kubernetes
-        run: |
-          kubectl apply -f ./terraform/kubernetes/backend.yaml
-          kubectl apply -f ./terraform/kubernetes/frontend.yaml
+  #     - name: Deploy to Kubernetes
+  #       run: |
+  #         kubectl apply -f ./terraform/kubernetes/backend.yaml
+  #         kubectl apply -f ./terraform/kubernetes/frontend.yaml
 
 
         
