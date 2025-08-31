@@ -1,8 +1,3 @@
-
-data "aws_eks_cluster_auth" "eks" {
-  name = var.cluster_name
-}
-
 resource "kubernetes_deployment" "frontend" {
   metadata {
     name = "frontend"

@@ -13,3 +13,13 @@
 
 
 # Add Automated Validation - terraform validate
+
+module "k8s" {
+  source = "./k8s"
+
+  image_tag = "20250831-d44d8b3"
+  cluster_endpoint = module.eks.cluster_endpoint
+  cluster_ca       = module.eks.cluster_certificate_authority_data
+  cluster_name     = module.eks.cluster_name
+}
+

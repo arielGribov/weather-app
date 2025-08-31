@@ -1,4 +1,6 @@
 data "aws_eks_cluster" "eks_id" {
+    depends_on = [module.eks]
+
   name       = var.eks_name
 }
 
