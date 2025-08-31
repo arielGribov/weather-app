@@ -30,11 +30,11 @@ provider "kubernetes" {
 
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.eks_id.certificate_authority[0].data)
   token                  = data.aws_eks_cluster_auth.eks_auth.token
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.eks_id.id]
-    command     = "aws"
-  }
+  # exec {
+  #   api_version = "client.authentication.k8s.io/v1beta1"
+  #   args        = ["eks", "get-token", "--cluster-name", data.aws_eks_cluster.eks_id.id]
+  #   command     = "aws"
+  # }
 }
 provider "kubectl" {
   token                  = data.aws_eks_cluster_auth.eks_auth.token
