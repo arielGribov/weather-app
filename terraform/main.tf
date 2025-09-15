@@ -17,7 +17,7 @@
 module "k8s" {
   source = "./k8s"
 
-  image_tag = "20250831-d44d8b3"
+  image_tag = "20250831-7f59c6b"
   cluster_endpoint = module.eks.cluster_endpoint
   cluster_ca       = module.eks.cluster_certificate_authority_data
   cluster_name     = module.eks.cluster_name
